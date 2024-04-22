@@ -1,0 +1,32 @@
+=== Definizione degli indirizzi virtuali dell'Event Bus
+
+In questo quarto step, il tag di riferimento è https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/step-4[step-4]. Affinché sia possibile consumare i messaggi/eventi pubblicati sul Event Bus di Quarkus, è necessario definire i cosiddetti virtual address che nel nostro caso sono sei.
+
+. L'indirizzo per cui registrare il consumer che processerà i messaggi/eventi per le richieste JAX-RS.
+. L'indirizzo per cui registrare il consumer che processerà i messaggi/eventi per le risposte JAX-RS.
+. L'indirizzo per cui registrare il consumer che processerà i messaggi/eventi che devono essere tracciati su un database SQL.
+. L'indirizzo per cui registrare il consumer che processerà i messaggi/eventi che devono essere tracciati su un database NoSQL.
+. L'indirizzo per cui registrare il consumer che processerà i messaggi/eventi che devono essere tracciati su una coda AMQP.
+. L'indirizzo per cui registrare il Dispatcher che sarà responsabile di inoltrare i messaggi/eventi ricevuti verso il corretto gestore (Event Handler) e quest'ultimo sarà l'effettivo responsabile dello store sul database SQL, NoSQL o sulla coda AMQP.
+
+La documentazione di Quarkus https://quarkus.io/guides/reactive-event-bus[Using Event Bus] fa uso dell'annotazione `@ConsumeEvent` dov'è possibile specificare l'indirizzo virtuale in questo modo: `@ConsumeEvent("nome-indirizzo-virtuale")`. Nel caso in cui questo non fosse specificato, l'indirizzo virtuale di default è il _fully qualified name_ del nome del bean che implementa il consumer.
+
+In questo progetto ho voluto usare un diverso approccio, ovvero, definire gli indirizzi virtuali sulla configurazione dell'applicazione e poi gestire in modo fine la gestione della registrazione dei consumer. A seguire è mostrata la sezione della configurazione dei sei indirizzi virtuali sul file `application.properties`.
+
+[source,properties]
+....
+# Define the Event Bus virtual address for the HTTP request event
+app.eventbus.consumer.http.request.address=http-request
+
+# Define the Event Bus virtual address for the HTTP response event
+app.eventbus.consumer.http.response.address=http-response
+
+# Define the Event Bus virtual address for event handler SQL, NoSQL and Queue
+app.eventbus.consumer.event.handler.addresses[0]=sql-trace
+app.eventbus.consumer.event.handler.addresses[1]=nosql-trace
+app.eventbus.consumer.event.handler.addresses[2]=queue-trace
+
+# Define the Event Bus virtual address for the Dispatcher
+app.eventbus.consumer.dispatcher.address=dispatcher-event
+....
+*Configurazione 3* - Configurazione degli indirizzi virtuali dell'Event Bus su cui registrare i relativi consumer

@@ -1,0 +1,7 @@
+=== Cos'è la Developer Sandbox di Red Hat?
+
+La Developer Sandbox di Red Hat è un ambiente cloud preconfigurato e pronto all'uso che fornisce agli sviluppatori un'opportunità per esplorare, sperimentare e testare le tecnologie Red Hat senza dover configurare un'infrastruttura complessa, di conseguenza senza la necessità di installare o configurare nulla localmente sulle proprie macchine.
+
+Per iniziare a utilizzare la Developer Sandbox di Red Hat, è sufficiente registrarsi gratuitamente al seguente https://developers.redhat.com/developer-sandbox[link] e installare la https://docs.openshift.com/container-platform/4.9/cli_reference/openshift_cli/getting-started-cli.html[CLI di OpenShift] necessaria per eseguire il login sul cluster OpenShift fornito dalla Developer Sandbox di Red Hat e opzionalmente per eseguire operazioni sul cluster.
+
+Quelle poche operazioni necessarie sul cluster OpenShift le faremo usando esclusivamente la CLI di OpenShift e in particolare il comando `oc`. Ovviamente, per chi volesse utilizzare l'interfaccia grafica di OpenShift può farlo accedendo alla Developer Sandbox di Red Hat utilizzando il browser.

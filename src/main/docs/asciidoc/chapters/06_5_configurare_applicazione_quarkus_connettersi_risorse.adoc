@@ -1,0 +1,101 @@
+=== Configurare l'applicazione Quarkus per connettersi alle risorse
+
+La configurazione dell'applicazione Quarkus per connettersi alle risorse create sul cluster OpenShift è abbastanza semplice e richiede solo di aggiungere le informazioni di connessione alle risorse nel file di configurazione `application.properties` dell'applicazione Quarkus.
+
+Per questa configurazione adotteremo la strategia di usare https://kubernetes.io/docs/concepts/configuration/configmap/[ConfigMap] e https://kubernetes.io/docs/concepts/configuration/secret/[Secret] per la configurazione delle risorse esterne come il broker AMQP Apache ActiveMQ Artemis e il database NoSQL MongoDB. Questa strategia è molto utile perché permette di separare le informazioni di configurazione dall'applicazione e di gestirle in modo centralizzato, e in particolare di gestire le informazioni sensibili come username e password in modo sicuro.
+
+Per fare ciò, è necessario creare due risorse, una di tipo ConfigMap e due di tipo Secret, per contenere le informazioni di configurazione del broker AMQP Apache ActiveMQ Artemis e del database NoSQL MongoDB. I descrittore YAML delle risorse ConfigMap e Secret li dobbiamo scrivere noi perché non se occuperà il plugin `quarkus-openshift`; quest'ultimo si occuperà però di aggiungere queste risorse allo yaml finale di deploy dell'applicazione Quarkus (che ricordiamo essere posizionato in `target/kubernetes/openshift.yml`).
+
+Detto ciò, andremo a posizionare il file `common.yml` all'interno del folder `src/main/kubernets`. A seguire il descrittore YAML per la ConfigMap e per il Secret.
+
+<<<
+
+[source,yaml]
+....
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amqp-hostname-port
+data:
+  amqp-host: activemq-artemis
+  amqp-port: 5672
+binaryData: {}
+immutable: false
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: amqp-username-password
+data:
+  amqp-password: YXJ0ZW1pcw==
+  amqp-username: YXJ0ZW1pcw==
+type: Opaque
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: mongodb
+data:
+  mongodb-connection-url: bW9uZ29kYjovL21vbmdvOjI3MDE3L2F1ZGl0Cg==
+type: Opaque
+....
+*Configurazione 8* - Descrittore YAML per la ConfigMap e il Secret per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB
+
+<<<
+
+La configurazione del file `application.properties` dell'applicazione Quarkus per connettersi al broker AMQP e a MongoDB, deve essere quindi modificata come segue. In particolare:
+
+. la proprietà `quarkus.openshift.env.configmaps` deve contenere il nome della ConfigMap che preserva l'hostname e la porta del broker AMQP;
+. la proprietà `quarkus.openshift.env.secrets` deve contenere il nome del Secret dedicato al broker AMQP e al database NoSQL MongoDB;
+. le proprietà `quarkus.amqp-host`, `quarkus.amqp-port`, `quarkus.amqp-username`, `quarkus.amqp-password` sono utilizzate per la connessione al broker AMQP i cui valori sono forniti dalla ConfigMap e dal Secret;
+. la proprietà `quarkus.mongodb.connection-string` è utilizzata per la connessione al database NoSQL MongoDB i cui valori sono forniti dal Secret.
+
+[source,properties]
+....
+# The name of the ConfigMap that contains the AMQP host, port
+quarkus.openshift.env.configmaps=amqp-hostname-port
+
+# The name of the Secret that contains the AMQP username and password
+# and the MongoDB connection URL (that will be contained the username and password)
+quarkus.openshift.env.secrets=amqp-username-password,mongodb
+
+# AMQP configuration for production profile
+# The AMQP host, port, username, and password
+# are provided by the ConfigMap and Secret.
+# See the src/kubernetes/common.yaml file for more details.
+%prod.amqp-host=${AMQP_HOSTNAME}
+%prod.amqp-port=${AMQP_PORT}
+%prod.amqp-username=${AMQP_USERNAME}
+%prod.amqp-password=${AMQP_PASSWORD}
+
+# Configure the mongoDB client for a single instance on localhost
+# are privided by the Secret.
+# See the src/kubernetes/common.yaml file for more details.
+%prod.quarkus.mongodb.connection-string=${MONGODB_CONNECTION_URL}
+....
+*Configurazione 9* - Configurazione per connettersi al broker AMQP e al database NoSQL MongoDB
+
+I valori delle proprietà `quarkus.amqp-host`, `quarkus.amqp-port`, `quarkus.amqp-username`, `quarkus.amqp-password` e `quarkus.mongodb.connection-string` sono forniti dalla ConfigMap e dal Secret come variabili d'ambiente, e sono accessibili nella forma `+${NOME_VARIABILE}+` all'interno del file `application.properties`. La magia di questo meccanismo parte da qui, esattamente dalla riga 4 alla riga 10 dell'estratto del file `openshift.yml` generato dal plugin `quarkus-openshift`.
+
+<<<
+
+[source,yml]
+....
+        - env:
+            - name: JAVA_APP_JAR
+              value: /deployments/quarkus-run.jar
+          envFrom:
+            - secretRef:
+                name: amqp-username-password
+            - secretRef:
+                name: mongodb
+            - configMapRef:
+                name: amqp-hostname-port
+          image: eventbus-logging-filter-jaxrs:1.0.0-SNAPSHOT
+....
+*Configurazione 10* - Magia del meccanismo di ConfigMap e Secret per l'applicazione Quarkus (file `openshift.yml` generato dal plugin `quarkus-openshift`)
+
+Le informazioni autenticazione, come username e password sono quelle di default per l'immagine Docker di Apache ActiveMQ Artemis e di MongoDB. [underline]#Ovviamente questa non è una buona pratica e dovreste cambiare queste informazioni con quelle che ritenete più sicure per il vostro ambiente di produzione.#
+
+<<<

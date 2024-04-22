@@ -1,0 +1,54 @@
+=== Creazione del progetto Quarkus
+
+In questo primo step, il cui tag di riferimento è https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/step-1[step-1], procederemo con la creazione del progetto Quarkus predisposto per l'utilizzo dell'Event Bus. È possibile creare il progetto usando Maven o Quarkus CLI. L'uso di Quarkus CLI rende più semplice la gestione di progetti Quarkus, per cui ne consiglio l'utilizzo.
+
+[source, shell]
+....
+# Creazione del progetto utilizzando Quarkus CLI
+quarkus create app it.dontesta.eventbus:eventbus-logging-filter-jaxrs \
+    --extension='vertx' \
+    --no-code
+
+# Creazione del Progetto utilizzando Maven
+mvn io.quarkus.platform:quarkus-maven-plugin:3.9.2:create \
+    -DprojectGroupId=it.dontesta.eventbus \
+    -DprojectArtifactId=eventbus-logging-filter-jaxrs \
+    -Dextensions='vertx' \
+    -DnoCode
+
+....
+*Console 1* - Creazione del progetto Quarkus con il supporto per l'Event Bus
+
+Eseguendo i due comandi indicati in precedenza dovreste ottenere il rispettivo output illustrato dalle due immagini a seguire. Il risultano ottenuto è identico per entrambe i comandi.
+
+image::creazione_progetto_quarkus_eventbus_by_quarkus_cli.jpg[creazione_progetto_quarkus_eventbus_by_quarkus_cli]
+*Figura 1* - Esempio di esecuzione della creazione del progetto Quarkus usando la CLI
+
+image::creazione_progetto_quarkus_eventbus_by_mvn.jpg[creazione_progetto_quarkus_eventbus_by_mvn]
+*Figura 2* - Esempio di esecuzione della creazione del progetto Quarkus usando Maven
+
+Il https://maven.apache.org/repositories/artifacts.html[GAV] (Group Id, Artifact Id e Version) della nostra applicazione è it.dontesta.eventbus:eventbus-logging-filter-jaxrs:1.0.0-SNAPSHOT e la directory del progetto per impostazione predefinita è eventbus-logging-filter-jaxrs il cui contenuto è quello mostrato a seguire.
+
+[source, console]
+....
+.
+├── README.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+└── src
+└── main
+├── docker
+│   ├── Dockerfile.jvm
+│   ├── Dockerfile.legacy-jar
+│   ├── Dockerfile.native
+│   └── Dockerfile.native-micro
+├── java
+└── resources
+└── application.properties
+
+6 directories, 9 files
+....
+*Console 2* - Struttura del progetto Quarkus dopo la creazione
+
+L'applicazione è stata creata specificando l'estensione Vertx; ricordo che l'Event Bus di Quarkus è basato su Eclipse Vert.x e in particolare sulla versione 4.5.7 (io.vertx:vertx-core). I più curiosi potrebbero verificarlo usando il comando `mvn dependency:tree -Dverbose|grep io.vertx` eseguito dalla directory del progetto.

@@ -1,0 +1,37 @@
+[colophon]
+= Informazioni su l'articolo
+
+**Antonio Musarra**, Sfruttare al massimo l'Event Bus di Quarkus: Utilizzi e Vantaggi
+
+Copertina e impaginazione di Antonio Musarra
+
+Prima edizione digitale Aprile 2024
+
+Serie: Quarkus Dev Guide (#quarkusdevguide)
+
+[.text-left]
+Promosso da: TheRedCode.it (https://theredcode.it) e Antonio Musarra's Blog (https://www.dontesta.it)
+
+Profilo LinkedIn https://www.linkedin.com/in/amusarra/
+
+[.text-left]
+Il progetto di esempio realizzato per quest'opera è disponibile su di un repository GitHub all'indirizzo https://github.com/amusarra/eventbus-logging-filter-jaxrs
+
+[.text-left]
+Quest'opera è stata realizzata usando l'approccio _doc-as-code_ e il testo è stato scritto in formato _AsciiDoc_. Il repository GitHub https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs contiene il progetto in formato Maven style da cui è possibile generare il PDF e l'ePUB di quest'opera.
+
+[.text-left]
+Nel caso di segnalazioni di errori, suggerimenti o richieste di chiarimenti, si prega di aprire una issue sul rispettivo repository GitHub.
+
+[.text-left]
+. Progetto Quarkus: https://github.com/amusarra/eventbus-logging-filter-jaxrs/issues
+. Progetto Documentazione: https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/issues
+
+Nell'ambito del social coding e del contributo alla comunità, sono ben accetti _pull request_ per migliorare il contenuto di quest'opera e del progetto di esempio.
+
+[.text-left]
+*Note sul Copyright*
+
+Tutti i diritti d’autore e connessi sulla presente opera appartengono all’autore Antonio Musarra. Per volontà dell’autore quest’opera è rilasciata nei termini della licenza Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International il cui testo integrale è disponibile alla pagina web https://creativecommons.org/licenses/by-nc-sa/4.0/deed.it
+
+Tutti i marchi riportati appartengo ai legittimi proprietari; marchi di terzi, nomi di prodotti, nomi commerciali, nomi corporativi e società citati possono essere marchi di proprietà dei rispettivi titolari o marchi registrati d’altre società e sono stati utilizzati a puro scopo esplicativo ed a beneficio del possessore, senza alcun fine di violazione dei diritti di copyright vigenti.

@@ -1,0 +1,7 @@
+=== Componenti dell'Event Bus
+
+Nel contesto di Quarkus, gli *_eventi_* sono spesso usati come una forma di messaggi (dati o segnali) che vengono pubblicati sull'Event Bus. Questi messaggi possono contenere informazioni pertinenti all'interno dell'applicazione e possono essere utilizzati per comunicare tra diverse parti del sistema. Quindi, nel contesto specifico di Quarkus, "evento" e "messaggio" possono essere considerati interscambiabili e si riferiscono entrambi ai dati trasmessi attraverso l'Event Bus.
+
+. *Producer (Produttore)*: un produttore è un componente dell'applicazione che pubblica eventi sull'Event Bus. Quando un evento significativo si verifica nell'applicazione, il produttore lo pubblica sull'Event Bus in modo che altri componenti possano riceverlo e reagire di conseguenza.
+. *Consumer (Consumatore)*: un consumatore è un componente dell'applicazione che sottoscrive specifici tipi di eventi sull'Event Bus. Quando un evento di interesse per il consumatore viene pubblicato sull'Event Bus, il consumatore lo riceve e può eseguire le azioni necessarie in risposta all'evento.
+. *Event Bus (Bus degli Eventi)*: è il canale di comunicazione centrale attraverso il quale i produttori pubblicano eventi e i consumatori li ricevono. L'Event Bus gestisce la distribuzione degli eventi ai consumatori interessati e garantisce l'affidabilità della comunicazione asincrona.

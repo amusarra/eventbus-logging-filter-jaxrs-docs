@@ -1,0 +1,292 @@
+=== Realizzazione del filtro JAX-RS
+
+In questo terzo step, il tag di riferimento è https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/step-3[step-3]. Al capitolo _3 Progettiamo qualcosa di concreto_ è stato introdotto brevemente il filtro JAX-RS come componente della soluzione che stiamo implementando e i diagrammi di sequenza 2 e 3 ne mostrano l'uso nel flusso dell'applicazione. Prima di scrivere qualche riga di codice, è utile fare un breve riassunto su cosa sono questi filtri e come funzionano.
+
+In JAX-RS, un filtro è un componente che consente di intercettare e modificare le richieste in arrivo e le risposte in uscita prima che vengano gestite dai resource endpoint. I filtri vengono utilizzati per implementare logiche di pre-elaborazione e post-elaborazione, come autenticazione, autorizzazione, logging, manipolazione dei dati e altro ancora.
+
+Ci sono due tipi principali di filtri in JAX-RS.
+
+. *Filtro di richiesta (Request Filter)*: questo tipo di filtro intercetta le richieste in arrivo prima che vengano instradate ai resource endpoint. Può essere utilizzato per eseguire operazioni come l'autenticazione dell'utente, la validazione dei parametri di input, la registrazione delle richieste e altro ancora.
+. *Filtro di risposta (Response Filter)*: questo tipo di filtro intercetta le risposte in uscita prima che vengano restituite ai client. Può essere utilizzato per aggiungere intestazioni HTTP, trasformare la risposta, eseguire operazioni di logging e altro ancora.
+
+Ecco come funziona il ciclo di vita di un filtro in JAX-RS.
+
+. *Registrazione del filtro*: il filtro viene registrato all'interno dell'applicazione JAX-RS utilizzando l'annotazione `@Provider`. Questo indica al framework JAX-RS che il componente è un filtro e deve essere gestito come tale.
+. *Fase di invocazione del filtro*: quando una richiesta viene ricevuta dall'applicazione JAX-RS, il framework instrada la richiesta ai filtri di richiesta registrati prima di passarla al resource endpoint corrispondente. Allo stesso modo, quando viene generata una risposta dall'applicazione, il framework instrada la risposta ai filtri di risposta registrati prima di restituirla al client.
+. *Esecuzione del filtro*: ogni filtro ha la possibilità di eseguire le proprie operazioni durante l'invocazione. Un filtro può accedere alla richiesta o alla risposta, eseguire le operazioni necessarie e, se necessario, interrompere il flusso delle richieste o delle risposte.
+. *Chiamata al filtro successivo*: dopo che un filtro ha completato le sue operazioni, il framework JAX-RS continua a passare la richiesta o la risposta al filtro successivo nella catena dei filtri.
+. *Restituzione al client*: dopo che tutte le operazioni dei filtri sono state completate, il framework restituisce la risposta finale al client.
+
+In breve, i filtri in JAX-RS forniscono un meccanismo potente per eseguire operazioni di pre-elaborazione e post-elaborazione sulle richieste e sulle risposte dei servizi, consentendo un maggiore controllo e flessibilità nel gestire il flusso.
+
+Dato che un diagramma è più efficace di mille parole, consiglio di fare riferimento all'Appendice https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#processing_pipeline[Processing Pipeline] delle specifiche https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html[Jakarta RESTful Web Services 3.1.0].
+
+Se avete visto il diagramma della _Processing Pipeline_, il nostro interesse è il lato server (non il client) e il diagramma a seguire mostra i cosiddetti *punti di estensione*. Il nostro lavoro consiste nell'implementazione delle due interfacce `ContainerRequestFilter` e `ContainerResponseFilter` che intercettano le richieste in arrivo e le risposte in uscita rispettivamente. Un punto da tenere in considerazione è l'ordine di esecuzione dei filtri che dipende dalla priorità loro assegnata (per maggiori dettagli fare riferimento https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#provider_priorities[Priorities] delle specifiche Jakarta RESTful Web Services).
+
+[mermaid]
+....
+graph LR
+  methodInvocke[Method Invocation]
+
+subgraph reqFlow[Request Flow]
+    req([Request]) --> pContReq[Prematch Container Request]
+    pContReq --> reqMatching[Request Matching]
+    reqMatching --> contReq[Container Request]
+    contReq --> readInt[Read Interceptor]
+  end
+
+subgraph respFlow[Response Flow]
+    contResp[Container Response] --> writeInt[Write Interceptor]
+    writeInt --> resp([Response])
+  end
+
+reqFlow --> methodInvocke
+  methodInvocke --> respFlow
+
+classDef reqFlowStyleClass fill:#f9f,stroke:#333,stroke-width:2px;
+  classDef respFlowStyleClass fill:#f9f,stroke:#333,stroke-width:2px;
+  classDef yellow fill:#ffff00,stroke:#333,stroke-width:4px;
+  classDef green fill:#9F6,stroke:#333,stroke-width:4px;
+  classDef orange fill:#F96,stroke:#333,stroke-width:4px;
+  classDef garden fill:#65b889,stroke:#333,stroke-width:4px;
+  classDef beach fill:#b3b865,stroke:#333,stroke-width:2px;
+  classDef white fill:#FFFFFF,stroke:#333,stroke-width:2px;
+
+ class reqFlow green;
+ class respFlow orange;
+ class req,pContReq,reqMatching,contReq,readInt,contResp,writeInt,resp white;
+....
+*Diagramma 6* - Punti di estensione del filtro e dell'interceptor lato server
+
+Il diagramma di classe a seguire mostra la classe `TraceJaxRsRequestResponseFilter` (il nostro filtro JAX-RS) che implementa le due interfacce `ContainerRequestFilter` e `ContainerResponseFilter` e in particolare i due metodi `filter()`.
+
+[mermaid]
+....
+classDiagram
+	class TraceJaxRsRequestResponseFilter {
+		+filter(ContainerRequestContext) void
+		+filter(ContainerRequestContext, ContainerResponseContext) void
+	}
+
+class ContainerRequestFilter {
+	+filter(ContainerRequestContext) void
+}
+
+class ContainerResponseFilter {
+	+filter(ContainerRequestContext, ContainerResponseContext) void
+}
+
+class Provider ["@Provider"]
+class Application ["@Application"]
+class Priority ["@Priority"]
+
+<<interface>> ContainerRequestFilter
+<<interface>> ContainerResponseFilter
+
+ContainerRequestFilter <|.. TraceJaxRsRequestResponseFilter
+ContainerResponseFilter <|.. TraceJaxRsRequestResponseFilter
+Provider .. TraceJaxRsRequestResponseFilter
+Priority .. TraceJaxRsRequestResponseFilter
+Application .. TraceJaxRsRequestResponseFilter
+....
+*Diagramma 7* - Relazioni del filtro JAX-RS TraceJaxRsRequestResponseFilter
+
+Il corpo dei due metodi `filter()` deve contenere la logica necessaria per prepare i messaggi (di request e response) da pubblicare sull'Event Bus di Quarkus.
+
+Il codice del filtro `TraceJaxRsRequestResponseFilter` mostrato a seguire, riporta l'implementazione parziale dei due metodi; manca la parte di codice responsabile della preparazione e invio dei messaggi di richiesta e risposta sull'Event Bus che vedremo successivamente.
+
+<<<
+
+[source,java]
+....
+package it.dontesta.eventbus.ws.filter;
+
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.ext.Provider;
+import java.util.List;
+import java.util.UUID;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+
+@Provider
+@Priority(Priorities.USER)
+public class TraceJaxRsRequestResponseFilter implements ContainerRequestFilter,
+    ContainerResponseFilter {
+
+  @Inject
+  Logger log;
+
+  @Context
+  UriInfo uriInfo;
+
+  @ConfigProperty(name = "app.filter.enabled", defaultValue = "false")
+  boolean filterEnabled;
+
+  @ConfigProperty(name = "app.filter.uris")
+  List<String> uris;
+
+  private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+
+  @Override
+  public void filter(ContainerRequestContext requestContext) {
+    // Se il filtro non è abilitato, esci
+    if (!filterEnabled) {
+      return;
+    }
+
+    // Ottieni l'URI della richiesta
+    String requestUri = uriInfo.getRequestUri().getPath();
+
+    String correlationId = getCorrelationId(requestContext.getHeaderString(CORRELATION_ID_HEADER));
+
+    // Aggiungi l'ID di correlazione alla richiesta
+    requestContext.setProperty(CORRELATION_ID_HEADER, correlationId);
+
+    // Applica la logica del filtro in base all'URI
+    if (requestUriIsFiltered(requestUri)) {
+      /*
+        @TODO: Se l'URI richiesto è presente nell'elenco delle URI da filtrare
+       * prepara e invia il messaggio della richiesta verso la destinazione
+       * dell'Event Bus.
+       */
+      log.debug("Pubblicazione del messaggio della richiesta HTTP sull'Event Bus");
+    }
+  }
+
+  @Override
+  public void filter(ContainerRequestContext requestContext,
+                     ContainerResponseContext responseContext) {
+    // Se il filtro non è abilitato, esci
+    if (!filterEnabled) {
+      return;
+    }
+
+    // Ottieni l'URI della richiesta
+    String requestUri = uriInfo.getRequestUri().getPath();
+
+    // Recupera l'ID di correlazione dalla richiesta
+    String correlationId =
+        getCorrelationId((String) requestContext.getProperty(CORRELATION_ID_HEADER));
+
+    // Aggiungi l'ID di correlazione alla risposta
+    responseContext.getHeaders().add(CORRELATION_ID_HEADER, correlationId);
+
+    // Applica la logica del filtro in base all'URI
+    if (requestUriIsFiltered(requestUri)) {
+      /*
+        @TODO: Se l'URI richiesto è presente nell'elenco delle URI da filtrare
+       * prepara e invia il messaggio della richiesta verso la destinazione
+       * dell'Event Bus.
+       */
+      log.debug("Pubblicazione del messaggio della risposta HTTP sull'Event Bus");
+    }
+  }
+
+  /**
+   * Ottiene l'ID di correlazione.
+   * Se l'ID di correlazione è nullo, genera un nuovo ID di correlazione.
+   * Questo metodo è utilizzato per garantire che l'ID di correlazione sia sempre presente,
+   * sia nella richiesta che nella risposta. Il formato dell'ID di correlazione è un UUID.
+   *
+   * @param correlationId L'ID di correlazione
+   * @return L'ID di correlazione
+   */
+  private String getCorrelationId(String correlationId) {
+    // Genera un nuovo ID di correlazione se quello attuale è nullo
+    if (correlationId == null) {
+      correlationId = UUID.randomUUID().toString();
+    }
+    return correlationId;
+  }
+
+  /**
+   * Verifica se la Request URI è tra quelle che devono essere filtrate.
+   * Il parametro di configurazione app.filter.uris contiene l'elenco delle URI.
+   *
+   * @param requestUri La Request URI da verificare
+   * @return true se la Request URI è tra quelle che devono essere filtrate, false altrimenti
+   */
+  private boolean requestUriIsFiltered(String requestUri) {
+    log.debug("La Request URI %s è tra quelle che devono essere filtrate".formatted(requestUri));
+
+    return uris.stream().anyMatch(item -> requestUri.startsWith(item));
+  }
+}
+....
+*Code 3* - Classe TraceJaxRsRequestResponseFilter che implementa il filtro JAX-RS
+
+
+Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), siamo nelle condizioni di poter eseguire un test. Guardando con attenzione l'implemetazione attuale, quali sono i punti salienti?
+
+. Il filtro è influenzato da due parametri di configurazione.
+.. Il parametro `app.filter.enabled` consente di abilitare o disabilitare il processo di elaborazione delle richieste e risposte.
+.. Il parametro `app.filter.uris` consente di specificare quali siano le URI che devono essere sottoposte a operazioni di filtraggio.
+. Il filtro fa in modo di generare il cosiddetto *_correlationId_* che consente di legare richiesta e risposta. Questo viene poi impostato come valore dell'http header (custom) X-Correlation-ID.
+
+A seguire è possibile vedere i parametri di configurazione menzionati in precedenza e i rispettivi valori. In particolare il parametro  `app.filter.uris` è difatto un array che al momento contiene un solo elemento.
+
+<<<
+
+[source,properties]
+....
+# The path of the banner (path relative to root of classpath) which could be provided by user
+quarkus.banner.path=quarkus-banner.txt
+
+# Logging configuration
+quarkus.log.category."it.dontesta.eventbus.ws.filter.TraceJaxRsRequestResponseFilter".level=DEBUG
+
+##
+## Application configuration properties
+##
+
+# Enable or disable the JX-RS filter. Default is true.
+app.filter.enabled=true
+
+# The URIs that the filter should be applied to.
+app.filter.uris[0]=/api/rest
+....
+*Configurazione 2* - Contentuo del file di configurazione application.properties
+
+Eseguendo un test allo stato attuale dell'implementazione del progetto, quale dovrebbe essere il risultato atteso?
+
+Effettuando una chiamata verso l'endpoint http://localhost:8080/api/rest/echo, dovremmo vedere tra gli header HTTP di risposta quello il cui nome è X-Correlation-ID e il valore è una stringa in formato https://www.ietf.org/rfc/rfc4122.txt[UUID Type 4].
+
+<<<
+
+[source, shell]
+....
+# Esecuzione del test sul filtro JAX-RS implementato
+# eseguendo la chiamata verso l'endpoint http://localhost:8080/api/rest/echo
+curl -v \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Primo test del filtro JAX-RS che aggiunge l'\''header X-Correlation-ID"}' \
+http://localhost:8080/api/rest/echo
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080
+> POST /api/rest/echo HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/8.4.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 82
+>
+< HTTP/1.1 200 OK
+< Content-Type: application/json;charset=UTF-8
+< content-length: 82
+< X-Correlation-ID: 5f106bed-2d6a-40de-8936-d1644c1c5b85
+<
+* Connection #0 to host localhost left intact
+{"message": "Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID"}
+....
+*Console 8* - Esecuzione del test sul filtro JAX-RS implementato
+
+Sul repository GitHub del progetto è disponibile lo unit test `CorrelationIdHttpHeaderTest` che si accerta che a fronte di una chiamata verso l'endpoint `/api/rest/echo` di ottenere in risposta l'header X-Correlation-ID il cui contenuto sia una stringa in formato UUID Type 4.

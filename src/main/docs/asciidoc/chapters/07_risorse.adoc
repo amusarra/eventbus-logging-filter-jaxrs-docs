@@ -1,0 +1,18 @@
+== Risorse
+
+Vi lascio con alcune risorse (Web e Libri) che potrebbero esservi utili per approfondire l'argomento trattato in questo articolo.
+
+=== Web
+
+* https://quarkus.io/[Quarkus]
+* https://quarkus.io/guides/vertx-eventbus[Quarkus - Event Bus]
+* https://quarkus.io/guides/deploying-to-openshift[Quarkus - OpenShift]
+* https://developers.redhat.com/articles/2024/04/04/getting-started-mongodb-and-quarkus-beyond-basics[Getting started with MongoDB and Quarkus: Beyond the basics]
+* https://developers.redhat.com/products/quarkus/overview[Red Hat build of Quarkus: Kubernetes-native Java]
+* https://techblog.smc.it/it/2020-04-19/reactive-vs-imperative[Reactive VS Imperative - Primo Episodio]
+
+=== Libri
+
+* https://www.manning.com/books/quarkus-in-action[Quarkus In Action: Building Kubernetes-Native Java Applications by Alex Soto Bueno, Jason Porter, and John Clingan (Manning Publications, 2023)]
+* https://developers.redhat.com/content-gateway/file/Kubernetes-native-microservices-ebook-v4.pdf[Kubernetes Native Microservices with Quarkus and MicroProfile]
+* https://developers.redhat.com/e-books/building-reactive-microservices-java[Building Reactive Microservices in Java: Asynchronous and Event-Based Application Design]

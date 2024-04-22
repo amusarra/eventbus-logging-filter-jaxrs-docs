@@ -1,0 +1,125 @@
+=== Adeguamento del filtro JAX-RS per inviare l'evento/messaggio sull'Event Bus
+
+In questo sesto step, il tag di riferimento è https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/step-6[step-6]. Dopo aver accertato il corretto funzionamento dell'invio dei messaggi sull'Event Bus e la corretta ricezione di questi da parte dei consumer, è arrivato il momento di completare il filtro JAX-RS per prepare i messaggi da inviare ai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`).
+
+Il messaggio da pubblicare sarà un oggetto di tipo `io.vertx.core.json.JsonObject` e conterrà una serie d'informazioni che riguardano sia la request sia la response http.
+
+Il motivo per cui è stato scelto di usare oggetti di tipo `io.vertx.core.json.JsonObject` risiede nel fatto che questo tipo di oggetto può essere inviato direttamente sull'Event Bus e non necessita di uno specifico https://quarkus.io/guides/reactive-event-bus#using-codecs[codec di Vert.x].
+
+Quanto mostrato a seguire, riporta una parte del codice del filtro JAX-RS `TraceJaxRsRequestResponseFilter` opportunamente modificato per preparare il messaggio JSON (vedi riga 27 `JsonObject prepareMessage(ContainerRequestContext requestContext)`) da pubblicare poi sull'Event Bus (vedi riga 11 `eventBus.publish(httpRequestVirtualAddress, prepareMessage(requestContext))`).
+
+[source,java]
+....
+...
+	  if (requestUriIsFiltered(requestUri)) {
+      // Aggiungi la data ora di quando la richiesta arriva al filtro
+      requestContext.setProperty(LOCAL_DATE_TIME_IN, LocalDateTime.now());
+
+      /*
+       * Se l'URI richiesto è presente nell'elenco delle URI da filtrare
+       * prepara e invia il messaggio della richiesta verso la destinazione
+       * dell\'Event Bus.
+       */
+      eventBus.publish(httpRequestVirtualAddress, prepareMessage(requestContext));
+
+      log.debug("Pubblicazione del messaggio della richiesta HTTP su Event Bus");
+    }
+
+  /**
+   * Prepara il messaggio della richiesta in formato JSON per l'invio all'Event Bus.
+   *
+   * <p>Il messaggio restituito contiene le informazioni relative alla richiesta HTTP
+   * come URI, headers, corpo, metodo, media-type, lingua accettata, ecc.
+   *
+   * <p>È in formato {@link JsonObject} per essere inviato direttamente all'Event Bus.
+   *
+   * @param requestContext Il contesto della richiesta
+   * @return JsonObject Il messaggio della richiesta in formato JSON
+   */
+  private JsonObject prepareMessage(ContainerRequestContext requestContext) {
+    JsonObject jsonObject;
+    try {
+      jsonObject = new JsonObject()
+          .put(CORRELATION_ID_HEADER, requestContext.getProperty(CORRELATION_ID_HEADER))
+          .put("remote-ip-address", routingContext.request().remoteAddress().host())
+          .put("headers", requestContext.getHeaders())
+          .put("body", getRequestBody(requestContext))
+          .put("uri-info", requestContext.getUriInfo().getRequestUri().toString())
+          .put(LOCAL_DATE_TIME_IN, requestContext.getProperty(LOCAL_DATE_TIME_IN).toString())
+          .put("method", requestContext.getMethod())
+          .put("media-type", "%s/%s".formatted(requestContext.getMediaType().getType(),
+              requestContext.getMediaType().getSubtype()))
+          .put("acceptable-language", requestContext.getAcceptableLanguages().toString())
+          .put("acceptable-media-types", requestContext.getAcceptableMediaTypes().toString());
+    } catch (IOException ioException) {
+      log.error("Errore nella generazione del JSON dal requestContext object");
+      throw new RuntimeException(ioException);
+    }
+
+    return jsonObject;
+  }
+...
+....
+*Code 5* - Modifiche al filtro JAX-RS `TraceJaxRsRequestResponseFilter` per preparare il messaggio e pubblicarlo sull'Event Bus
+
+A questo punto abbiamo completato l'implementazione dei componenti richiesti affinché il sequence diagram mostrato in diagramma 4 sia soddisfatto. Possiamo eseguire un test per verificare che quanto sviluppato fino a questo momento funzioni utilizzando due metodi:
+
+. il primo consiste nell'avviare l'applicazione e fare una richiesta cURL verso l'endpoint  `/api/rest/echo` verificando sui log che in messaggi pubblicati sull'Event Bus siano consumanti dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`;
+. il secondo test consiste nell'esecuzione degli unit test utilizzando il comando `quarkus test` o `mvn test`.
+
+La figura a seguire e il JSON mostrato successivame (console 10), rappresentano il messaggio pubblicato sull'Event Bus e consumato dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
+
+image::test_pubblicazione_consumazione_messaggi_curl.jpg[test_pubblicazione_consumazione_messaggi_curl]
+
+*Figura 5* - Test della generazione dei messaggi e pubblicazione
+
+[source, shell]
+....
+// Messaggio in formato JSON generato dal filtro JAX-RS sulla catena di request
+// e successivamente pubblicato sull'Event Bus verso il virtual address configurato
+{
+  "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+  "remote-ip-address": "127.0.0.1",
+  "headers": {
+    "User-Agent": [
+      "curl/8.4.0"
+    ],
+    "Host": [
+      "localhost:8080"
+    ],
+    "Accept": [
+      "*/*"
+    ],
+    "Content-Length": [
+      "82"
+    ],
+    "Content-Type": [
+      "application/json"
+    ]
+  },
+  "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}",
+  "uri-info": "http://localhost:8080/api/rest/echo",
+  "local-date-time-in": "2024-04-11T18:01:48.467365",
+  "method": "POST",
+  "media-type": "application/json",
+  "acceptable-language": "[]",
+  "acceptable-media-types": "[*/*]"
+}
+
+// Messaggio in formato JSON generato dal filtro JAX-RS sulla catena di response
+// e successivamente pubblicato sull'Event Bus verso il virtual address configurato
+
+{
+    "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+    "local-date-time-out": "2024-04-11T18:01:48.528893",
+    "status": 200,
+    "status-info-family-name": "SUCCESSFUL",
+    "status-info-reason": "OK",
+    "headers": {
+        "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+        "Set-Cookie": "user_tracking_id=27765cdb-0d24-489f-b8cb-ae5b635a4f74;Version=1;Comment=\"Cookie di tracciamento dell'utente\";Path=/;Max-Age=2592000"
+    },
+    "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}"
+}
+....
+*Console 10* - Esempio dei messaggi di request e response pubblicati sull'Event Bus e consumati da HttpRequestConsumer e HttpResponseConsumer

@@ -1,0 +1,217 @@
+==== Implementazione Event Handler AMQP
+
+Prima di procedere con l'implementazione dell'Event Handler per il tracciamento sul broker AMQP, è necessario aggiungere le dipendenze per il supporto AMQP al progetto Quarkus. Questo può essere fatto tramite la CLI di Quarkus o tramite Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
+
+[source,shell]
+....
+# Aggiungere la dipendenza per il Reactive Messaging RabbitMQ connector
+# tramite la CLI di Quarkus
+quarkus extension add quarkus-messaging-amqp
+
+# Aggiungere la dipendenza per il Reactive Messaging RabbitMQ connector
+
+# tramite il comando Maven
+mvn quarkus:add-extension -Dextensions='messaging-rabbitmq'
+....
+*Console 18* - Installazione estensione AMQP Messaging di Quarkus tramite CLI o Maven
+
+La documentazione di Quarkus https://quarkus.io/guides/amqp[AMQP Messaging 1.0] fornisce tutte le informazioni necessarie per configurare il client AMQP e per implementare le operazioni di invio e ricezione di messaggi. Il broker AMQP che utilizzeremo è https://activemq.apache.org/components/artemis/[Apache ActiveMQ Artemis] che implementa il protocollo https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html[AMQP 1.0] ed è già integrato in Quarkus come Dev Services.
+
+La prima attività da fare è configurare il client AMQP per la connessione al broker AMQP. Questo può essere fatto tramite il file di configurazione `application.properties` dell'applicazione Quarkus. A seguire la configurazione per la connessione al broker AMQP.
+
+[source,properties]
+....
+# Configure the outgoing/incoming AMQP connector and address
+# The outgoing connector is used to send the HTTP request and
+# response events to the AMQP broker
+# The incoming connector is used to receive the HTTP request and
+# response events from the AMQP broker
+mp.messaging.outgoing.http-request-out.connector=smallrye-amqp
+mp.messaging.outgoing.http-response-out.connector=smallrye-amqp
+mp.messaging.incoming.http-request-in.connector=smallrye-amqp
+mp.messaging.incoming.http-response-in.connector=smallrye-amqp
+mp.messaging.outgoing.http-request-out.address=http-request
+mp.messaging.outgoing.http-response-out.address=http-response
+mp.messaging.incoming.http-request-in.address=http-request
+mp.messaging.incoming.http-response-in.address=http-response
+....
+*Configurazione 4* - Configurazione del client AMQP per la connessione al broker AMQP
+
+La configurazione comporta la definizione di quattro connettori AMQP (la cui implementazione è quella di Smallrye), due per l'invio degli eventi HTTP request e response al broker AMQP e due per la ricezione degli eventi HTTP request e response dal broker AMQP. Ogni connettore è associato a un indirizzo AMQP che rappresenta la coda AMQP a cui inviare o da cui ricevere i messaggi.
+
+A questo punto possiamo procedere con l'implementazione dell'Event Handler per il tracciamento sul broker. A seguire il codice completo dell'Event Handler `AmqpEventHandler` per il tracciamento su Apache ActiveMQ Artemis. Questo componente è un consumer registrato sull'Event Bus con l'indirizzo virtuale definito in `app.eventbus.consumer.event.handler.addresses[2]` sul file di configurazione `application.properties` dell'applicazione Quarkus.
+
+In questa implementazione facciamo uso di due componenti fondamentali che fanno parte del *https://download.eclipse.org/microprofile/microprofile-reactive-messaging-1.0/microprofile-reactive-messaging-spec.html[MicroProfile Reactive Messaging]*, ovvero, `Emitter` e `Channel`. L'``Emitter`` è utilizzato per inviare effettivamente i messaggi al canale specificato, mentre il `Channel` è il canale di messaggistica asincrona attraverso il quale i messaggi vengono inviati e ricevuti (fare riferimento alla configurazione dell'applicazione per i canali `http-request-out` e `http-response-out`).
+
+Il metodo `void handleEvent(Message<JsonObject> message)` è responsabile di:
+
+. leggere gli header dal messaggio ricevuto e in particolare l'header `SOURCE_COMPONENT` che contiene il nome del componente sorgente;
+. inviare il messaggio alla coda AMQP (vedi metodo `sendToQueue(Message<JsonObject> message, Emitter<JsonObject> emitter)`) per i messaggi di richiesta HTTP se il componente sorgente è `HttpRequestConsumer` e alla coda AMQP per i messaggi di risposta HTTP se il componente sorgente è `HttpResponseConsumer`. L'invio del messaggio alla coda AMQP è asincrono e il risultato dell'operazione è inviato come risposta al Dispatcher (vedi il metodo `message.reply()` in caso di successo e il metodo `message.fail()` in caso di fallimento).
+
+[source,java]
+....
+package it.dontesta.eventbus.consumers.events.handlers.queue;
+
+import io.quarkus.runtime.StartupEvent;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.Message;
+import it.dontesta.eventbus.consumers.http.HttpRequestConsumer;
+import it.dontesta.eventbus.consumers.http.HttpResponseConsumer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.jboss.logging.Logger;
+
+@ApplicationScoped
+public class AmqpEventHandler {
+
+  @Channel("http-request-out")
+  Emitter<JsonObject> requestEmitter;
+
+  @Channel("http-response-out")
+  Emitter<JsonObject> responseEmitter;
+
+  @Inject
+  EventBus eventBus;
+
+  @Inject
+  Logger log;
+
+  @ConfigProperty(name = "app.eventbus.consumer.event.handler.addresses[2]")
+  String amqpEventHandlerVirtualAddress;
+
+  public static final String SOURCE_COMPONENT = "source-component";
+
+  void onStart(@Observes StartupEvent ev) {
+    log.debugf("Registering the AMQP event handler at addresses: {%s}",
+        amqpEventHandlerVirtualAddress);
+
+    eventBus.consumer(amqpEventHandlerVirtualAddress, this::handleEvent);
+  }
+
+  // Method to handle the event
+  public void handleEvent(Message<JsonObject> message) {
+    // Recupera il componente sorgente dagli header del messaggio
+    String sourceComponent = message.headers().get(SOURCE_COMPONENT);
+
+    // Invia il messaggio alla coda AMQP per i messaggi di richiesta HTTP
+    if (sourceComponent.equals(HttpRequestConsumer.class.getName())) {
+      sendToQueue(message, requestEmitter);
+    }
+
+    // Invia il messaggio alla coda AMQP per i messaggi di risposta HTTP
+    if (sourceComponent.equals(HttpResponseConsumer.class.getName())) {
+      sendToQueue(message, responseEmitter);
+    }
+  }
+
+  /**
+   * Invio del messaggio alla coda AMQP e rimanere in attesa di una risposta
+   * per confermare l'invio del messaggio e notificarlo al Dispatcher.
+   *
+   * @param message Il messaggio da inviare alla coda AMQP
+   * @param emitter L'oggetto Emitter per inviare il messaggio alla coda AMQP
+   */
+  private void sendToQueue(Message<JsonObject> message,
+                           Emitter<JsonObject> emitter) {
+    emitter.send(message.body()).whenComplete((result, error) -> {
+      if (error != null) {
+        message.fail(1, error.getMessage());
+      } else {
+        message.reply("Message sent to AMQP queue successfully!");
+      }
+    });
+  }
+}
+....
+*Code 9* - Implementazione dell'Event Handler per il tracciamento sul broker AMQP che in questo caso è Apache ActiveMQ Artemis
+
+A questo punto non resta che provare il funzionamento dell'Event Handler per il tracciamento sul broker AMQP. Per fare ciò abbiamo due possibilità:
+
+. avviare l'applicazione tramite il comando `quarkus dev` e fare una richiesta cURL verso l'endpoint `/api/rest/echo` verificando che il messaggio sia correttamente tracciato sul broker AMQP;
+. eseguire gli unit test utilizzando il comando `quarkus test` o `mvn test` verificando che il messaggio sia correttamente tracciato sul broker AMQP.
+
+Per verificare che i messaggi siano stati effettivamente consegnati al message broker AMQP, è possibile usare il comando `artemis consumer` per attaccarsi alla coda AMQP e consumare i messaggi pubblicati dall'Event Handler. A seguire un esempio di come fare.
+
+Per reperire il `container-id` del container di Apache ActiveMQ Artemis, eseguire il comando `podman ps` e cercare il container creato dall'immagine di Apache ActiveMQ Artemis.
+
+Per reperire l'indirizzo IP del container di Apache ActiveMQ Artemis, eseguire il comando `podman container inspect --format '{{.NetworkSettings.IPAddress}}' <container-id>` e prendere l'indirizzo IP del container.
+
+[source,shell]
+....
+# Comando per registrare un consumer sulla coda AMQP http-request
+podman exec -it <container-id> ./broker/bin/artemis consumer --user guest --password guest --verbose --url tcp://<indirizzo-ip-container>:61616 --protocol AMQP --destination http-request
+
+# Comando per registrare un consumer sulla coda AMQP http-response
+podman exec -it <container-id> ./broker/bin/artemis consumer --user guest --password guest --verbose --url tcp://<indirizzo-ip-container>:61616 --protocol AMQP --destination http-response
+
+# Esempio di output atteso
+Consumer http-request, thread=0 Received {"X-Correlation-ID":"f47c01b2-3ba5-4539-9ab4-a3cd78f01f2c","remote-ip-address":"127.0.0.1","headers":{"User-Agent":["curl/8.4.0"],"Host":["localhost:8080"],"Accept":["*/*"],"Content-Length":["102"],"Content-Type":["application/json"]},"body":"{\"message\": \"Test di tracking richiesta JAX-RS su AMQP Broker tramite Event Handler AmqpEventHandler\"}","uri-info":"http://localhost:8080/api/rest/echo","local-date-time-in":"2024-04-13T00:31:07.682214","method":"POST","media-type":"application/json","acceptable-language":"[]","acceptable-media-types":"[*/*]"}
+JMS Message ID:null
+Received text sized at 558
+
+# Esempio di output atteso
+Consumer http-response, thread=0 Received {"X-Correlation-ID":"f47c01b2-3ba5-4539-9ab4-a3cd78f01f2c","local-date-time-out":"2024-04-13T00:31:07.752305","status":200,"status-info-family-name":"SUCCESSFUL","status-info-reason":"OK","headers":{"X-Correlation-ID":"f47c01b2-3ba5-4539-9ab4-a3cd78f01f2c","Set-Cookie":"user_tracking_id=496e1a23-98ed-4b8e-b18b-f512b6225dde;Version=1;Comment=\"Cookie di tracciamento dell'utente\";Path=/;Max-Age=2592000"},"body":"{\"message\": \"Test di tracking richiesta JAX-RS su AMQP Broker tramite Event Handler AmqpEventHandler\"}"}
+JMS Message ID:null
+Received text sized at 523
+....
+*Console 19* - Consumazione dei messaggi dalla coda AMQP http-request e http-response
+
+All'interno del progetto è disponibile un componente che funge da consumer per i messaggi inviati alla coda AMQP. Questo componente è `AmqpConsumer` e le annotazioni `@Incoming("http-request-in")` e `@Incoming("http-response-in")` sono utilizzate per definire i canali di messaggistica asincrona attraverso i quali i messaggi vengono ricevuti.
+
+I metodi `CompletionStage<Void> consumeHttpRequest(Message<JsonObject> requestMessage)` e `CompletionStage<Void> consumeHttpResponse(Message<JsonObject> responseMessage)`:
+
+. ricevono i messaggi inviati alla coda AMQP `http-request` e `http-response`;
+. loggano il contenuto dei messaggi ricevuti;
+. impostano il messaggio come completato tramite il metodo `message.ack()`.
+
+[source,java]
+....
+package it.dontesta.eventbus.consumers.events.handlers.queue.incoming;
+
+import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import java.util.concurrent.CompletionStage;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
+import org.jboss.logging.Logger;
+
+@ApplicationScoped
+public class AmqpConsumer {
+
+  @Inject
+  Logger log;
+
+  @Incoming("http-request-in")
+  public CompletionStage<Void> consumeHttpRequest(Message<JsonObject> requestMessage) {
+    // Implementa la logica per consumare il messaggio della richiesta HTTP
+    log.debug("Received HTTP request message: " + requestMessage.getPayload());
+    return requestMessage.ack();
+  }
+
+  @Incoming("http-response-in")
+  public CompletionStage<Void> consumeHttpResponse(Message<JsonObject> requestMessage) {
+    // Implementa la logica per consumare il messaggio della richiesta HTTP
+    log.debug("Received HTTP response message: " + requestMessage.getPayload());
+    return requestMessage.ack();
+  }
+}
+....
+*Code 10* - Implementazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response
+
+Dalla configurazione dell'applicazione Quarkus, questo consumer è stato disabilitato per evitare che di default i messaggi inviati alla coda AMQP siano consumati all'interno della stessa applicazione. Per abilitare il consumer è necessario commentare la configurazione indicata a seguire.
+
+[source,properties]
+....
+# The list of types that should be excluded from discovery.
+# The types should be specified using their fully qualified name.
+# The types are separated by a comma.
+# In this case, the AmqpConsumer class is excluded
+quarkus.arc.exclude-types=it.dontesta.eventbus.consumers.events.handlers.queue.incoming.AmqpConsumer
+....
+*Configurazione 5* - Disabilitazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response

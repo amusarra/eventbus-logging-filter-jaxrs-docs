@@ -1,0 +1,129 @@
+=== Adeguare il progetto Quarkus per OpenShift
+
+Quarkus offre la possibilità di generare automaticamente risorse OpenShift in base a valori predefiniti e alla configurazione fornita dall'utente; per ottenere ciò, è necessario apportare alcune modifiche alla configurazione del progetto e in particolare:
+
+. aggiungere la dipendenza `quarkus-openshift` al progetto;
+. aggiungere la dipendenza per le specifiche https://github.com/eclipse/microprofile-health/[MicroProfile Health];
+. configurare il plugin `quarkus-openshift` per generare le risorse OpenShift in modo adeguato.
+
+L'estensione OpenShift è in realtà un'estensione wrapper che configura l'estensione https://quarkus.io/guides/deploying-to-kubernetes[Kubernetes] con impostazioni predefinite in modo che sia più semplice per l'utente iniziare con Quarkus su OpenShift. Le impostazioni predefinite includono la generazione di risorse OpenShift come `Deployment`, `Service`, `Route`, `ConfigMap`, `Secret`, `PersistentVolumeClaim` e `BuildConfig`.
+
+Per aggiungere la dipendenza `quarkus-openshift` al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
+
+[source,shell]
+....
+# Aggiungere la dipendenza per il deploy su OpenShift
+# tramite la CLI di Quarkus
+quarkus extension add quarkus-openshift
+
+# Aggiungere la dipendenza per il deploy su OpenShift
+
+# tramite il comando Maven
+mvn quarkus:add-extension -Dextensions='quarkus-openshift'
+....
+*Console 20* - Installazione estensione OpenShift di Quarkus tramite CLI o Maven
+
+Per quanto riguarda la configurazione del plugin `quarkus-openshift` tramite il file di configurazione `application.properties` dell'applicazione Quarkus, al momento inseriremo solo la configurazione che ci permetterà di https://quarkus.io/guides/deploying-to-openshift#exposing_routes[esporre l'applicazione all'esterno del cluster OpenShift]. A seguire la configurazione da inserire nel file `application.properties`.
+
+[source,properties]
+....
+# If true, the service will be exposed outside of the cluster
+# and will be assigned a route.
+# If false, the service will only be accessible within the cluster (default)
+# Environment variable: QUARKUS_OPENSHIFT_ROUTE_EXPOSE
+quarkus.openshift.route.expose=true
+....
+*Configurazione 6* - Configurazione per esporre l'applicazione all'esterno del cluster OpenShift
+
+Per impostazione prendefinita l'esposizione all'esterno è configurata utilizzando il protocollo HTTP. Per abilitare il HTTPS, sarà necessario configurare il plugin `quarkus-openshift` con le informazioni relative al certificato e alla chiave privata.
+
+È opportuno avere una visione d'insieme delle risorse OpenShift/Kubernetes che saranno conivolte nel processo di deploy e di cui il plugin `quarkus-openshift` genererà la descrizione in formato yaml ([underline]##ma solo di quelle riguardanti l'applicazione##). Quello mostrato a seguire è il diagramma delle risorse coinvolte nel deploy dell'applicazione Quarkus su OpenShift.
+
+image::architettura_k8s_applicazione_1.jpg[architettura_k8s_applicazione_1]
+*Figura 6* - Architettura delle risorse coinvolte nel deploy dell'applicazione Quarkus su OpenShift
+
+Il diagramma è rappresentato da un Deployment che contiene il *Pod* (o i Pod) con il container dell'applicazione Quarkus, un *Service* per esporre il Pod (o i Pod) all'interno del cluster OpenShift e un *Route* (implementazione di OpenShift dell'Ingress) per esporre il Service all'esterno del cluster OpenShift. Inoltre, il diagramma mostra anche i servizi esterni come il database MongoDB e il broker AMQP che sono utilizzati dall'applicazione Quarkus.
+
+Ricordiamo che all'interno di un cluster Kubernetes, i pod di ogni deployment comunicano tra loro attraverso il Service, e questo è importante ricordarlo al momento della configurazione dell'applicaizione Quarkus e in particolare delle connessioni ai servizi esterni come il database MongoDB e il broker AMQP.
+
+[TIP]
+====
+*Nota*: il plugin `quarkus-openshift` genererà automaticamente le risorse OpenShift/Kubernetes in base alla configurazione fornita dall'utente e alle impostazioni predefinite.
+====
+
+
+*Perché dobbiamo aggiugere il supporto per le specifiche https://github.com/eclipse/microprofile-health/[MicroProfile Health]?*
+
+Il motivo è che l'estensione OpenShift di Quarkus utilizza le specifiche MicroProfile Health per verificare lo stato dell'applicazione e per determinare se l'applicazione è pronta per ricevere il traffico. Questa estensione la cui implementazione è fornita da https://github.com/smallrye/smallrye-health/[SmallRye Health] è un componente fondamentale per ottenere gratuitamente e sviluppare le probe di Liveness, Readiness e Started Probe, concetti essenziali per le applicazioni cloud native, in particolare quando occorre orchestrare e gestire i container all'interno di un'infrastruttura come Kubernetes. Ecco un'analisi più dettagliata dell'importanza di ciascun tipo di probe.
+
+. *Liveness Probe*: è un meccanismo per determinare se un'applicazione è in esecuzione e funzionante. Se l'applicazione non è in esecuzione, Kubernetes la riavvierà. Questo è utile per evitare che un'applicazione non funzionante riceva traffico.
+. *Readiness Probe*: è un meccanismo per determinare se un'applicazione è pronta per ricevere il traffico. Se l'applicazione non è pronta, Kubernetes non invierà traffico all'applicazione. Questo è utile per evitare che un'applicazione non pronta riceva traffico.
+. *Started Probe*: è un meccanismo per determinare se un'applicazione è stata avviata correttamente. Se l'applicazione non è stata avviata correttamente, Kubernetes la riavvierà. Questo è utile per evitare che un'applicazione non avviata correttamente riceva traffico.
+
+Per aggiugere la dipendenza per le specifiche MicroProfile Health al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
+
+[source,shell]
+....
+# Aggiungere la dipendenza per le specifiche MicroProfile Health
+# tramite la CLI di Quarkus
+quarkus extension add smallrye-health
+
+# Aggiungere la dipendenza per le specifiche MicroProfile Health
+
+# tramite il comando Maven
+mvn quarkus:add-extension -Dextensions='smallrye-health'
+....
+*Console 21* - Installazione estensione MicroProfile Health di Quarkus tramite CLI o Maven
+
+Importando l'estensione smallrye-health, Quarkus genererà automaticamente le probe di Liveness, Readiness e Started per l'applicazione. Queste probe saranno utilizzate dall'estensione OpenShift per determinare se l'applicazione è pronta per ricevere il traffico. Avviando quindi l'applicazione, avremo a disposizione le seguenti probe.
+
+. *Liveness*: `/q/health/live` - questa probe è utilizzata per determinare se l'applicazione è in esecuzione e funzionante.
+. *Readiness*: `/q/health/ready` - questa probe è utilizzata per determinare se l'applicazione è pronta per ricevere il traffico e di conseguenza servire le richieste.
+. *Started*: `/q/health/started` - questa probe è utilizzata per determinare se l'applicazione è stata avviata correttamente.
+. *Health*: `/q/health` - questa probe è utilizzata per determinare lo stato generale dell'applicazione.
+
+Interrogando le probe di Liveness e Readiness (utilizzando il cURL), otterremo rispettivamente i seguenti output. Tutti gli endpoint delle probe restituiscono un semplice JSON con lo stato (`status`) complessivo dell'applicazione e delle eventuali verifiche effettuate (`checks`). Nel caso della nostra applicazione, le verifiche effettuate sono relative alla connessione al database MongoDB e alla connessione al broker AMQP (che in questo caso riporta lo stato dei due channel per la pubblicazioni dei messaggi di richiesta e risposta JAX-RS).
+
+[source,shell]
+....
+# Risposta della probe Liveness /q/health/live
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "SmallRye Reactive Messaging - liveness check",
+            "status": "UP",
+            "data": {
+                "http-response-out": "[OK]",
+                "http-request-out": "[OK]"
+            }
+        }
+    ]
+}
+
+# Risposta della probe Liveness /q/health/ready
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "MongoDB connection health check",
+            "status": "UP",
+            "data": {
+                "<default-reactive>": "OK"
+            }
+        },
+        {
+            "name": "SmallRye Reactive Messaging - readiness check",
+            "status": "UP",
+            "data": {
+                "http-response-out": "[OK]",
+                "http-request-out": "[OK]"
+            }
+        }
+    ]
+}
+....
+*Console 22* - Risposta della probe di Liveness e Readiness
+
+<<<
+

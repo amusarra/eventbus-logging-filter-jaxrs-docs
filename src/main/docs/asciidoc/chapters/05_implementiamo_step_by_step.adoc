@@ -1,0 +1,62 @@
+== Implementiamo step-by-step
+
+Dopo aver stilato i requisiti minimi per la nostra applicazione e fatta la necessaria progettazione della soluzione, siamo nelle condizioni di poter procedere con la realizzazione vera e propria, cercando di seguire step-by-step i vari stadi riassunti a seguire.
+
+. Creazione del progetto Quarkus
+. Realizzazione del Resource Endpoint (servizio Rest)
+. Realizzazione del filtro JAX-RS
+. Definizione degli indirizzi virtuali dell'Event Bus
+. Registrazione dei Consumer per gli eventi dell'Event Bus
+. Adeguamento del filtro JAX-RS per inviare l'evento/messaggio sull'Event Bus
+. Realizzazione del Dispatcher e degli Event Handler
+
+Prima d'iniziare con qualunque attività d'implementazione, è necessario che i requisiti indicati nella tabella a seguire come non opzionali siano soddisfatti. In tabella non sono indicati il terminale (o console del sistema operativo) e l'IDE di cui avete ampia libertà di scelta.
+
+
+|===
+| Nome | Opzionale | Descrizione
+
+| Java JDK 17/21
+| NO
+| Implementazione di OpenJDK 17/21. È possibile usare qualunque delle https://en.wikipedia.org/wiki/OpenJDK[implementazioni disponibili]. Per questo articolo è stata usata la versione 21 di OpenJDK e l'implementazione di Amazon Corretto 21.0.2.
+
+| Git
+| NO
+| Tool di versioning.
+
+| Maven 3.9.6
+| NO
+| Tool di build per i progetti Java e di conseguenza Quarkus.
+
+| Quarkus 3.9.2
+| NO
+| Framework Quarkus 3.9.2 la cui release note è disponibile qui https://quarkus.io/blog/quarkus-3-9-2-released/. Per maggiori informazioni per le release LTS fare riferimento all'articolo https://quarkus.io/blog/lts-releases/[Long-Term Support (LTS) for Quarkus].
+
+| Quarkus CLI
+| SI
+| Tool a linea di comando che consente di creare progetti, gestire estensioni ed eseguire attività essenziali di creazione e sviluppo. Per ulteriori informazioni su come installare e utilizzare la CLI (Command Line Interface) di Quarkus, consulta la https://quarkus.io/guides/cli-tooling[guida della CLI di Quarkus].
+
+| Docker v26 o Podman v4/5
+| NO
+| Tool per la gestione delle immagini e l'esecuzione dell'applicazione in modalità container. La gestione delle immagini/container sarà necessaria nel momento in cui saranno sviluppati gli Event Handler che dovranno comunicare con i servizi esterni all'applicazione (vedi NoSQL, SQL, AMQP). La gestione delle immagini necessarie e container, sarà totalmente trasparente per noi sviluppatori in quanto a carico dei https://quarkus.io/guides/dev-services[Dev Services di Quarkus].
+
+| GraalVM
+| SI
+| Per la build dell'applicazione in modalità nativa. Per maggiori informazioni fare riferimento alla documentazione https://quarkus.io/guides/building-native-image[Building a Native Executable].
+
+| Ambiente di sviluppo C
+| SI
+| Richiesto da GraalVM per la build dell'applicazione nativa. Per maggiori informazioni fare riferimento alla documentazione https://quarkus.io/guides/building-native-image[Building a Native Executable].
+
+| cURL 7.x/8.x
+| SI
+| Tool per il test dei Resource Endpoint (servizi REST)
+|===
+
+*Tabella 2* - Requisiti (anche opzionali) necessari per l'implementazione del progetto Quarkus
+
+<<<
+
+L'intero progetto a cui ho dato il nome https://github.com/amusarra/eventbus-logging-filter-jaxrs[Event Bus Logging filter JAX-RS] è disponibile su GitHub e può essere clonato o scaricato per essere esaminato e testato. Inoltre, il progetto è stato realizzato usando la CLI di Quarkus e Maven, quindi è possibile eseguire il progetto in modalità sviluppo, testarlo e, se necessario, eseguire la https://quarkus.io/guides/building-native-image[build in modalità nativa]. All'interno del progetto è presente un file `README.md` che contiene tutte le informazioni necessarie per la compilazione, l'esecuzione e il test del progetto.
+
+Ho fatto in modo che per ogni step di realizzazione del progetto (precedentemente indicato) sia taggato, così che sia possibile seguire passo-passo l'evoluzione del progetto. Per esempio, nel caso in cui volessimo visionare il progetto al termine del primo step, sarà possibile eseguire il comando `git checkout step-1`, e così via per gli altri step. Quando inizieremo ogni step di realizzazione del progetto, sarà indicato il tag di riferimento.

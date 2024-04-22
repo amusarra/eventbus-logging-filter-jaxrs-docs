@@ -1,0 +1,134 @@
+=== Primo deploy su OpenShift
+
+Per effettuare il deploy dell'applicazione Quarkus su OpenShift, è necessario eseguire i seguenti passaggi:
+
+. effettuare il login sul cluster OpenShift fornito dalla Developer Sandbox di Red Hat;
+. build e deply dell'applicazione Quarkus su OpenShift;
+
+Per eseguire il login sul cluster OpenShift fornito dalla Developer Sandbox di Red Hat, è necessario eseguire il comando `oc login` in due possibili modalità: tramite username e password o tramite token. A seguire i comandi per effettuare il login sul cluster OpenShift.
+
+[source,shell]
+....
+# Login tramite username e password (richiesta dopo l'esecuzione del comando)
+oc login -u myusername
+
+# Login tramite token (via preferenziale)
+oc login --token=<tuo-token> --server=<tuo-cluster>
+....
+*Console 23* - Login sul cluster OpenShift fornito dalla Developer Sandbox di Red Hat
+
+Per ottenere il token di accesso al cluster OpenShift fornito dalla Developer Sandbox di Red Hat, è necessario accedere alla Developer Sandbox di Red Hat e cliccare sul pulsante `Copy Login Command` per copiare il comando di login che contiene il token di accesso al cluster OpenShift. A seguire un esempio di comando di login con token.
+
+image::come_ottenere_login_url_1.jpg[come_ottenere_login_url_1]
+*Figura 7* - Come ottenere il comando di login con token
+
+image::come_ottenere_login_url_2.jpg[come_ottenere_login_url_2]
+*Figura 8* - Pagina che mostra il Token API e il comando di login tramite OC e cURL
+
+Se il login è andato a buon fine dovreste vedere un messaggio simile a quello mostrato a seguire, dov'è indicato il nome del cluster OpenShift, l'utente con cui avete effettuato il login e il progetto di default in cui siete loggati.
+
+image::come_ottenere_login_url_3.jpg[come_ottenere_login_url_3]
+*Figura 9* - Messaggio di login completato con successo
+
+Dopo aver effettuato il login sul cluster OpenShift, è possibile procedere con il processo di build e deploy dell'applicazione Quarkus su OpenShift. Per fare ciò, è necessario eseguire il comando `mvn clean package -Dquarkus.openshift.deploy=true` che effettuerà la build dell'applicazione Quarkus e il deploy su OpenShift. A seguire un esempio di output (parziale) del comando di build e deploy che mostra il buon esito dell'operazione.
+
+Ricordo che, è sempre possibile monitorare l'operazione di build e deploy dell'applicazione Quarkus su OpenShift tramite la console Web di OpenShift o tramite la CLI di OpenShift. Per chi volesse vedere l'intera operazione di build e deploy dell'applicazione Quarkus su OpenShift, è possibile visualizzare l'asciinema https://asciinema.org/a/654124[Primo deploy su OpenShift dell'applicazione Quarkus Event Bus Logging Filter JAX-RS].
+
+[source,shell]
+....
+[INFO] Scanning for projects...
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Pushing image image-registry.openshift-image-registry.svc:5000/antonio-musarra-dev/eventbus-logging-filter-jaxrs:1.0.0-SNAPSHOT ...
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Getting image source signatures
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Copying blob sha256:dc4586ee36f78ddcdcf0f695ddfab9f607315ef196793fc7c00d96c196864290
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Copying blob sha256:eca9236fb686825c1ec7ba1f1b339f6300ed2d4fffdf50611dde66cb8f6eeaa9
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Copying blob sha256:dc35b837139a95d1b9f7f7b0435a024a74ab972416bdc248f3f608c9f917a753
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Copying config sha256:9df58fd4ebf70122955dbc07d06435e22ab1b3425b06538927f0c6cc38f2dc62
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Writing manifest to image destination
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Successfully pushed image-registry.openshift-image-registry.svc:5000/antonio-musarra-dev/eventbus-logging-filter-jaxrs@sha256:eaaa9125c441238b6940326ebd218c1873a0a270ffd5a218926390e079916c2c
+[INFO] [io.quarkus.container.image.openshift.deployment.OpenshiftProcessor] Push successful
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Deploying to openshift server: https://api.sandbox-m2.ll9k.p1.openshiftapps.com:6443/ in namespace: antonio-musarra-dev.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: Service eventbus-logging-filter-jaxrs.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: ImageStream openjdk-21.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: ImageStream eventbus-logging-filter-jaxrs.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: BuildConfig eventbus-logging-filter-jaxrs.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: Deployment eventbus-logging-filter-jaxrs.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: Route eventbus-logging-filter-jaxrs.
+[INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] The deployed application can be accessed at: http://eventbus-logging-filter-jaxrs-antonio-musarra-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com
+[INFO] [io.quarkus.deployment.QuarkusAugmentor] Quarkus augmentation completed in 235171ms
+[INFO] ........................................................................
+[INFO] BUILD SUCCESS
+[INFO] ........................................................................
+[INFO] Total time:  04:08 min
+[INFO] Finished at: 2024-04-14T15:10:46+02:00
+[INFO] ........................................................................
+....
+*Console 24* - Output parziale del comando di build e deploy dell'applicazione Quarkus su OpenShift
+
+L'operazione di build e in particolare quella di deploy potrebbe durare diversi minuti perché il plugin `quarkus-openshift` deve eseguire diverse operazioni sul cluster, tra cui la creazione di un certo numero di risorse quali: `Deployment`, `Pods`, `Service`, `Route`,  `ConfigMap`,`Secret` oltre a l'immagine dell'applicazione Quarkus che viene caricata sul registry del cluster OpenShift. Da tenere anche in considerazione che la Developer Sandbox di Red Hat è un ambiente condiviso e quindi la velocità di risposta potrebbe variare in base al carico di lavoro del cluster. Nel mio caso l'operazione di build e deploy è durata circa 4 minuti.
+
+Al termine dell'operazione di build e deploy, il comando di build e deploy restituirà l'URL dell'applicazione Quarkus su OpenShift. Per accedere all'applicazione Quarkus su OpenShift è sufficiente copiare l'URL e incollarlo nel browser.
+
+Anche se build e deploy è stato completato con successo, *siete del tutto sicuri che l'applicazione sia disponibile?*
+
+La risposta è negativa. Puntando alla URL dell'applicazione Quarkus, otterreste il messaggio di errore HTTP/503. Questo accade perché l'applicazione potrebbe non essere ancora pronta per ricevere il traffico. A seguire l'output mostrato dal comando `+curl -I http://eventbus-logging-filter-jaxrs-antonio-musarra-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com+` e dal browser che evidenziano proprio l'indisponibilità dell'applicazione.
+
+<<<
+
+[source,shell]
+....
+HTTP/1.1 503 Service Unavailable
+pragma: no-cache
+cache-control: private, max-age=0, no-cache, no-store
+content-type: text/html
+Date: Sun, 14 Apr 2024 13:46:49 GMT
+Connection: close
+....
+*Console 25* - Output del comando cURL puntando all'applicazione dopo il primo deploy
+
+image::deploy_openshift_prima_volta_1.jpg[deploy_openshift_prima_volta_1]
+*Figura 10* - Messaggio di errore HTTP/503 mostrato dal browser per l'applicazione Quarkus non pronta
+
+È probabile che molti di voi abbiano già intuito il motivo dell'indisponibilità dell'applicazione ma cerchiamo in ogni caso di capire il motivo di questa indisponibilità utilizzando la CLI di OpenShift e il modo di risolvere il problema. In questi casi la prima azione da compiere che potrebbe senza dubbio dare l'indicazione di ciò che sia andato storto, è la verifica degli eventi che sono accaduti durante il deploy dell'applicazione. Per fare ciò, è necessario eseguire il comando `oc get events` che restituirà l'elenco degli eventi accaduti durante il deploy. A seguire l'output del comando `oc get events`.
+
+Le informazioni riportate dal comando `oc get events` mostrano che l'applicazione non è pronta per ricevere il traffico (`Startup probe failed: HTTP probe failed with statuscode: 503`). Questo accade perché l'applicazione non ha superato le probe di Startup; tra le altre cose il pod è stato uccisso e riavviato più volte (`Back-off restarting failed container`).
+
+image::deploy_openshift_prima_volta_2.jpg[deploy_openshift_prima_volta_2]
+*Figura 11* - Output del comando `oc get events` per verificare il motivo per l'applicazione sia non pronta
+
+Visto che il problema è sul pod dell'applicazione, è necessario verificare il motivo per cui l'applicazione non è pronta per ricevere il traffico. In questo caso possiamo andare a vedere direttamente il log del pod dell'applicazione per capire il motivo per cui l'applicazione non è pronta per ricevere il traffico. Per fare ciò, è necessario eseguire il comando `oc logs <pod-name>` che restituirà il log del pod dell'applicazione.
+
+Dai log è evidente il motivo della non disponibilità dell'applicazione, ovvero la mancata connessione al broker AMQP. Questo accade perché l'applicazione Quarkus non è riuscita a connettersi al broker AMQP e quindi non è pronta per ricevere il traffico. Questa evidenza è anche confermata dal log della probe di Startup che mostra il fallimento della connessione al broker AMQP.
+
+[source,shell]
+....
+2024-04-14 14:19:33,709 ERROR [io.sma.rea.mes.amqp] (vert.x-eventloop-thread-0) SRMSG16215: Unable to connect to the broker, retry will be attempted: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:5672
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:973)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:337)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:339)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+2024-04-14 14:19:36,100 INFO  [io.sma.rea.mes.amqp] (executor-thread-1) SRMSG16212: Establishing connection with AMQP broker
+2024-04-14 14:19:36,543 INFO  [io.sma.health] (vert.x-eventloop-thread-1) SRHCK01001: Reporting health down status: {"status":"DOWN","checks":[{"name":"SmallRye Reactive Messaging - startup check","status":"DOWN","data":{"http-response-in":"[KO]","http-response-out":"[KO]","http-request-in":"[KO]","http-request-out":"[KO]"}}]}
+2024-04-14 14:19:36,583 INFO  [io.quarkus] (Shutdown thread) eventbus-logging-filter-jaxrs stopped in 0.024s
+....
+*Console 26* - Log del pod dell'applicazione Quarkus per verificare il motivo per cui l'applicazione non è pronta
+
+Dopo questa breve analisi le idee dovrebbero essere più chiare. Se ricordate bene, l'applicazione ha delle dipendenze esterne, verso il database NoSQL MongoDB e verso il broker AMQP Apache ActiveMQ Artemis. Fino a quando siamo stati nella fase di sviluppo dell'applicazione, queste dipendenze non ci hanno dato problemi perché eravamo in un ambiente controllato e locale e per di più abbiamo fatto uso dei Dev Services di Quarkus che hanno reso trasparente per noi l'uso di queste dipendenze.
+
+Passando all'ambiente di "produzione" o comuque diverso dal nostro ambiente di sviluppo locale, le cose sono cambiate, queste dipendenze non sono più disponibili e il plugin `quarkus-openshift` non crea i descrittori necessari per creare tutte le risorse indispensabili per tirare su le dipendenze sull'ambiente di deploy OpenShift.
+
+Se andassimo a vedere il contenuto del file `target/kubernetes/openshift.yml` , all'interno non troveremmo nessuna risorsa per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB. Questo è il motivo per cui l'applicazione non è pronta per ricevere il traffico, poiché non riesce a connettersi al broker AMQP Apache ActiveMQ Artemis e quindi non è pronta per ricevere il traffico.
+
+Per risolvere il problema occorre quindi, creare le risorse per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB sul cluster OpenShift e configurare opportunamente l'applicazione Quarkus per connettersi a queste risorse.
+
+<<<

@@ -1,0 +1,13 @@
+== Come funziona l'Event Bus di Quarkus
+
+L'Event Bus di Quarkus funziona come un sistema di messaggistica asincrona che consente ai diversi componenti di un'applicazione di comunicare tra loro attraverso il meccanismo di pubblicazione e la sottoscrizione.
+
+I messaggi vengono inviati a *indirizzi virtuali* e l'Event Bus offre tre tipi di meccanismi di consegna:
+
+. *punto-a-punto*: il messaggio viene inviato e un singolo consumatore lo riceve. Se più consumatori ascoltano lo stesso indirizzo, viene applicato un classico algoritmo di _round-robin_;
+. *pubblica/sottoscrivi*: il messaggio viene pubblicato e tutti i consumatori che ascoltano l'indirizzo ricevono il messaggio;
+. *richiesta/risposta*: il mittente invia il messaggio e si aspetta una risposta. Il ricevente può rispondere in modo asincrono.
+
+Tutti questi meccanismi di consegna sono *non bloccanti* e costituiscono uno dei mattoni fondamentali per costruire applicazioni reattive. La caratteristica di scambio di messaggi asincroni consente di rispondere agli stessi, tuttavia, è limitata al comportamento di singolo evento (senza flusso continuo o stream) e ai messaggi locali.
+
+Vediamo in dettaglio come funziona iniziando dai componenti di cui è costituito e poi dalla dinamica.

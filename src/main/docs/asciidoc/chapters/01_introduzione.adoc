@@ -1,0 +1,9 @@
+<<<
+== Introduzione
+https://quarkus.io/[Quarkus], il framework Java progettato per il cloud nativo, offre una vasta gamma di funzionalità per semplificare lo sviluppo delle applicazioni. Una di queste funzionalità è l'https://quarkus.io/guides/reactive-event-bus[Event Bus], un componente fondamentale per la comunicazione asincrona all'interno delle applicazioni. In questo articolo, esploreremo il concetto di Event Bus di Quarkus, i suoi utilizzi e i vantaggi/svantaggi che offre agli sviluppatori.
+
+Nel corso di questo articolo entreremo più nel mondo dell'asincronia e della programmazione reattiva, motivo per cui alcune parti di codice potrebbero risultare più complesse rispetto a quelle che siamo abituati a vedere.
+
+Quarkus è reattivo. Ma c'è di più: Quarkus unifica la programmazione reattiva e imperativa (vedi https://quarkus.io/guides/quarkus-reactive-architecture[Quarkus Reactive Architecture]). Non devi nemmeno scegliere: [underline]##puoi implementare componenti reattivi e componenti imperativi e combinarli all'interno della stessa applicazione##. Non è necessario utilizzare stack, strumenti o API diversi; Quarkus collega entrambi i mondi.
+
+Cercherò di spiegare ogni passaggio nel modo più semplice e chiaro possibile, in modo che anche i lettori meno esperti possano comprendere i concetti e le tecniche presentate. Per coloro che volessero affrontare uno "scontro amichevole tra paradigmi", vi lascio la lettura e visione di https://techblog.smc.it/it/2020-04-19/reactive-vs-imperative[Reactive VS Imperative - Primo Episodio] di https://www.linkedin.com/in/cristian-bianco-655305123/[Cristian Bianco] e https://www.linkedin.com/in/mauro-celani-b75aa587/[Mauro Celani].

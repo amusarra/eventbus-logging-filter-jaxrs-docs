@@ -1,0 +1,15 @@
+== Bonus
+
+Il progetto Quarkus è nato come strumento di sviluppo di applicazioni Java native per gli ambienti cloud. *Quale migliore occasione per testare la nostra applicazione Quarkus su OpenShift?*
+
+Ho pensato quindi a questo Bonus per chi volesse installare l'applicazione Quarkus su OpenShift e in particolare sulla https://developers.redhat.com/developer-sandbox[Developer Sandbox] (o DevSandbox) di Red Hat.
+
+Per apprezzare a pieno e seguire i contenuti di questo Bonus, è necessario avere una conoscenza di base di OpenShift e della Developer Sandbox di Red Hat e in particolare del mondo https://kubernetes.io/[Kubernetes]. Per questo motivo, non entrerò nei dettagli di come installare e configurare OpenShift e la Developer Sandbox di Red Hat, ma mi limiterò a fornire le istruzioni per installare l'applicazione Quarkus su OpenShift. A seguire una serie di risorse utili per apprendere i concetti di base di OpenShift e Kubernetes.
+
+. https://www.apogeonline.com/libri/kubernetes-serena-sensini/[Kubernetes. Guida per gestire e orchestrare i container (Libro di Serena Sensini)]
+. https://developers.redhat.com/e-books/openshift-for-developers[OpenShift for Developers (eBook - Gratuito)]
+. https://developers.redhat.com/e-books/deploying-openshift[Deploying to OpenShift (eBook - Gratuito)]
+. https://developers.redhat.com/e-books/kubernetes-patterns[Kubernetes Patterns (eBook - Gratuito)]
+. https://developers.redhat.com/e-books/kubernetes-native-microservices-quarkus-and-microprofile[Kubernetes Native Microservices with Quarkus and MicroProfile (eBook - Gratuito)]
+
+Il tag di riferimento del https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/bonus-openshift-1[progetto su GitHub] per il bonus è `bonus-openshift-1` e per installare l'applicazione Quarkus su OpenShift seguite i passaggi indicati nel resto dei capitoli di questo bonus; in ogni caso il README del progetto contiene tutte le informazioni necessarie.

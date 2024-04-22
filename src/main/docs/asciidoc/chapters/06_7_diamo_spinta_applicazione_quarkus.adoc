@@ -1,0 +1,124 @@
+=== Diamo una spinta all'applicazione Quarkus
+
+Per concludere, possiamo dare una spinta all'applicazione Quarkus per renderla più performante e scalabile. È probabile che qualcuno di voi pensi già alla possibilità di scalare l'applicazione in modo orizzontale per gestire un carico di lavoro più elevato, e quindi agire attraverso il comando  `oc scale --replicas=3 deployment/eventbus-logging-filter-jaxrs` che scalerà l'applicazione Quarkus a 3 repliche e trovarsi in una situazione simile a quella mostrata a seguire; ma non è questa l'idea della spinta o del boost. *Allora, qual è l'idea?*
+
+image::status_deployment_jvm_mode_eventbus-logging-filter-jaxrs_1.jpg[status_deployment_eventbus-logging-filter-jaxrs_1]
+*Figura 12* - Status del deployment dell'applicazione Quarkus con 3 repliche (vista dalla console di OCP)
+
+La spinta o il boost che vogliamo dare all'applicazione Quarkus, la possiamo ottenere attivando https://www.graalvm.org/[GraalVM] per la compilazione nativa dell'applicazione Quarkus. La compilazione nativa dell'applicazione Quarkus con GraalVM è una delle caratteristiche più interessanti di Quarkus perché consente di creare un eseguibile nativo dell'applicazione che è più veloce e leggero rispetto all'eseguibile Java.
+
+L'eseguibile nativo per la nostra applicazione conterrà il codice dell'applicazione, le librerie richieste, le API Java e una versione ridotta di una VM che migliora il tempo di avvio dell'applicazione e produce un ingombro minimo sul disco. Il diagramma mostrato in Figura 13 illustra il processo di creazione di un eseguibile nativo con GraalVM.
+
+image::native-executable-process.png[native-executable-process]
+*Figura 13* - Processo di creazione di un eseguibile nativo con GraalVM (immagine tratta da https://quarkus.io/guides/building-native-image#producing-a-native-executable[Quarkus.io])
+
+Andando sul pratico, vediamo prima lo start-up time dell'applicazione Quarkus in modalità JVM che possiamo vedere direttamente dai log dell'applicazione usando il comando `oc logs <nome-del-pod>`. In particolare, l'output del comando `oc logs <nome-del-pod>` mostra che l'applicazione Quarkus in modalità JVM ha un tempo di avvio di 2,646 secondi, come mostrato a seguire.
+
+image::started_in_jvm_mode.jpg[started_in_jvm_mode]
+*Figura 14* - Start-up time dell'applicazione Quarkus in modalità JVM
+
+Adesso procediamo con la compilazione dell'applicazione Quarkus in modalità nativa con GraalVM e deploy su OpenShift. Per fare ciò, è possibile proseguire in diversi modi e in ogni caso assicurati di avere un ambiente di container runtime (come Docker o Podman) funzionante.
+
+<<<
+
+[source,shell]
+....
+# Compilazione dell'applicazione Quarkus in modalità nativa con GraalVM
+# e deploy su OpenShift. In questo caso è obbligatorio avere GraalVM installato.
+# 1. Tramite Maven
+mvn clean package -Pnative -Dquarkus.openshift.deploy=true
+
+# 2. Tramite Quarkus CLI
+quarkus build -Pnative -Dquarkus.openshift.deploy=true
+
+# Compilazione dell'applicazione Quarkus in modalità nativa con l'immagine GraalVM
+# e deploy su OpenShift. In questo caso non è obbligatorio avere GraalVM installato.
+# 3. Tramite Maven
+mvn clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.openshift.deploy=true
+
+# 4. Tramite Quarkus CLI
+quarkus build -Pnative -Dquarkus.native.container-build=true -Dquarkus.openshift.deploy=true
+....
+*Console 34* - Compilazione dell'applicazione Quarkus in modalità nativa con GraalVM e deploy su OpenShift
+
+Molto spesso è necessario solo creare un eseguibile Linux nativo per la propria applicazione Quarkus (ad esempio per eseguirla in un ambiente containerizzato come quello di OpenShift) e si vorrebbe evitare il problema di installare la versione GraalVM corretta per eseguire questa attività (ad esempio, negli ambienti CI è pratica comune installare il minor numero di software possibile). I comandi 3 e 4 mostrati sopra, consentono di creare un eseguibile Linux nativo per la propria applicazione Quarkus senza dover installare GraalVM.
+
+Nel mio caso specifico, dove l'ambiente di sviluppo è macOS su Apple Silicon M1 Max con 32GByte di RAM, ho dovuto usare una strategia leggermente diversa per creare l'eseguibile Linux. In particolare:
+
+. ho creato una VM utilizzando https://github.com/abiosoft/colima[Colima] impostando un template basato macOS Virtualization Framework per avere il supporto per l'architettura amd64. La macchina è stata creata con 60GByte di spazio disco, 4GByte di RAM e 4 core CPU;
+. ho eseguito il pull dell'immagine Docker di Mandrel Builder specificando la piattaforma linux/amd64 utilizzando il comando `docker pull quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 --platform linux/amd64`;
+. ho eseguito la build dell'applicazione Quarkus in modalità nativa con GraalVM e deploy su OpenShift utilizzando il comando `quarkus build --native --no-tests -Dquarkus.native.container-build=true -Dquarkus.native.builder-image.pull=never -Dquarkus.openshift.deploy=true`.
+
+[NOTE]
+====
+*Nota*: Colima è un'applicazione open-source che consente di creare e gestire macchine virtuali su macOS utilizzando il framework di virtualizzazione di macOS. Il vantaggio di Colima è che consente di creare macchine virtuali con architetture diverse da quella dell'host e questo grazie al framework di virtualizzazione di macOS che sfrutta Rosetta 2. L'articolo https://www.theredcode.it/database/sql-server-macos-apple-silicon/[Come avviare un'istanza SQL Server su macOS Apple Silicon] spiega come installare e configurare Colima su macOS Apple Silicon M1.
+====
+
+
+[source,shell]
+....
+# Comando per creare l'eseguibile Linux nativo per l'applicazione Quarkus
+# tramite Mandrel Builder eseuguito su una VM con architettura ibrida aarch64/amd64
+# grazie a Colima.
+quarkus build --native --no-tests \
+	-Dquarkus.native.container-build=true \
+	-Dquarkus.native.builder-image.pull=never \
+	-Dquarkus.openshift.deploy=true
+....
+*Console 35* - Comando per creare l'eseguibile Linux nativo per l'applicazione Quarkus
+
+Il flag usati nel comando `quarkus build` sono i seguenti:
+
+* il parametro `--no-tests` è stato utilizzato per evitare l'esecuzione dei test durante la build dell'applicazione Quarkus in modalità nativa con GraalVM;
+* il parametro `--native` è stato utilizzato per specificare che la build dell'applicazione Quarkus deve essere eseguita in modalità nativa con GraalVM;
+* il parametro `-Dquarkus.native.container-build=true` è stato utilizzato per specificare che la build dell'applicazione Quarkus deve essere eseguita all'interno di un container;
+* il parametro `-Dquarkus.native.builder-image.pull=never` è stato utilizzato per specificare che l'[underline]##immagine di Mandrel Builder non deve essere scaricata perché scaricata in precendenza con il comando## `podman pull`; Non specificando questo parametro, il comando `quarkus build` cercherà di scaricare l'immagine di Mandrel Builder e prenderà quella per l'architettura corrente, che nel mio caso è aarch64 e non amd64, di conseguenza l'eseguibile prodotto sarebbe stato per l'architettura sbagliata;
+* Il parametro `-Dquarkus.openshift.deploy=true` è stato utilizzato per specificare che l'applicazione Quarkus deve essere deployata su OpenShift.
+
+
+Nel caso in cui volessimo passare dei parametri a GraalVM, potremmo farlo utilizzando `-Dquarkus.native.additional-build-args`, specificando i parametri di nostro interesse.
+
+Il processo di build crea un eseguibile Linux nativo dell'applicazione all'interno della cartella `target` con il nome `eventbus-logging-filter-jaxrs-1.0.0-SNAPSHOT-runner`. Questo eseguibile è pronto per essere deployato su OpenShift e per essere eseguito in un container. I più curiosi possono verificare che l'eseguibile sia effettivamente stato creato per Linux/x86-64 utilizzando il comando `file`. A seguire l'output del comando `file`.
+
+[source,shell]
+....
+eventbus-logging-filter-jaxrs-1.0.0-SNAPSHOT-runner: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=11bbeea7b79b4df5b3b075cc3ff7c4cac330e5f1, not stripped
+....
+*Console 36* - Output del comando `file` per verificare che l'eseguibile sia un eseguibile Linux nativo
+
+Su asciiema è disponibile https://asciinema.org/a/654690[Build Event Bus Logging Filter JAX-RS as Native (linux/amd64)], l'intero processo di build e deploy dell'applicazione Quarkus in modalità nativa con GraalVM su OpenShift la cui durata è di circa 5 minuti e invito a guardarlo per avere un'idea più chiara del processo.
+
+image::https://asciinema.org/a/654690.svg[asciicast,link=https://asciinema.org/a/654690]
+
+*Asciinema 2* - Processo di build e deploy dell'applicazione Quarkus in modalità nativa con GraalVM su OpenShift
+
+Al termine della build dell'applicazione Quarkus in modalità nativa con GraalVM, è possibile verificare che l'applicazione Quarkus sia stata deployata correttamente su OpenShift utilizzando il comando `oc get pods` e successivamente tramite il comando `oc logs <nome-del-pod>` per verificare i tempi di start-up dell'applicazione Quarkus in modalità nativa che ci aspettiamo siano molto più bassi rispetto alla modalità JVM.
+
+image::started_in_native_mode.jpg[started_in_native_mode]
+*Figura 15* - Start-up time dell'applicazione Quarkus in modalità nativa
+
+*Woa!* Come previsto, il tempo di start-up dell'applicazione Quarkus in modalità nativa è di *0,035 secondi*, un tempo di start-up molto più basso rispetto alla modalità JVM (siamo vicini al 100%). Questo significa che l'applicazione in modalità nativa è più veloce in start-up e leggera rispetto alla modalità JVM, e quindi più adatta per gestire un carico di lavoro più elevato. Dalla figura a seguire fate attenzione alla memoria usata dall'applicazione Quarkus compilata in nativo, decisamente un bel risparmio rispetto alla versione JVM.
+
+image::status_deployment_native_mode_eventbus-logging-filter-jaxrs_1.jpg[status_deployment_native_mode_eventbus-logging-filter-jaxrs_1]
+*Figura 16* - Status del deployment dell'applicazione Quarkus in modalità nativa (vista dalla console di OCP)
+
+Togliamoci la soddisfazione di chiamare l'API del servizio di echo e verificare che l'applicazione Quarkus in modalità nativa funzioni correttamente e risponda in un tempo minore rispetto alla modalità JVM. Facciamo un veloce test con il comando https://httpd.apache.org/docs/current/programs/ab.html[ab (Apache HTTP server benchmarking tool)] per verificare le prestazioni dell'applicazione.
+
+[source,shell]
+....
+# Esecuzione del comando ab per testare le prestazioni dell'applicazione Quarkus in modalità nativa.
+# In questo caso il comando ab esegue 100 richieste totali con 5 concorrenti.
+ab -n 100 -c 5 -T 'application/json' -k \
+  -p src/test/resources/payload-1.json \
+  http://eventbus-logging-filter-jaxrs-antonio-musarra-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com/api/rest/echo
+....
+*Console 37* - Esecuzione del comando ab per testare le prestazioni dell'applicazione Quarkus in modalità nativa
+
+Anche qui i risultati sono stati molto positivi, l'applicazione Quarkus in modalità nativa ha risposto correttamente alle richieste HTTP e ha dimostrato di essere più veloce rispetto alla modalità JVM.
+
+La versione nativa la cui build è stata effettuata con GraalVM (non utilizzando nessun parametro di ottimizzazione ulteriore) è risultata essere più veloce anche sotto stress rispetto alla versione JVM e tutto questo senza apportare alcuna modifica al codice sorgente dell'applicazione Quarkus. Sono sicuro che con un pò di attività di ottimizzazione e tuning, si possano ottenere risultati ancora migliori, ma questo è un argomento per un altro articolo.
+
+image::esecuzione_ab_jvm_vs_native.jpg[esecuzione_ab_jvm_vs_native]
+*Figura 17* - Esecuzione del comando ab per testare le prestazioni dell'applicazione Quarkus in modalità nativa
+
+<<<

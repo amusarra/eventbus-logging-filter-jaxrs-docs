@@ -1,0 +1,37 @@
+=== Funzionamento dell'Event Bus
+
+Il funzionamento dell'Event Bus può essere descritto in cinque punti che sono:
+
+. *pubblicazione degli eventi*: quando si verifica un evento significativo nell'applicazione, il produttore pubblica l'evento sull'Event Bus utilizzando un meccanismo di pubblicazione. L'evento può contenere dati pertinenti associati all'azione che ha causato la pubblicazione dell'evento;
+. *sottoscrizione agli eventi*: I consumatori interessati agli eventi di un determinato tipo si sottoscrivono all'Event Bus specificando i tipi di eventi di loro interesse. In questo modo, i consumatori riceveranno solo gli eventi rilevanti per le loro funzionalità;
+. *distribuzione degli eventi*: l'Event Bus gestisce la distribuzione degli eventi (in base ai meccanismi di consegna supportati) ai consumatori sottoscritti. Quando un evento viene pubblicato sull'Event Bus, questo invia l'evento a tutti i consumatori interessati ai tipi di eventi corrispondenti;
+. *gestione degli eventi*: i consumatori ricevono gli eventi e li gestiscono in base alle logiche di business specifiche dell'applicazione. Possono elaborare gli eventi, aggiornare lo stato dell'applicazione o avviare azioni specifiche in risposta agli eventi ricevuti;
+. *affidabilità e scalabilità*: l'Event Bus di Quarkus gestisce in modo affidabile la comunicazione asincrona tra i componenti dell'applicazione, garantendo la consegna degli eventi ai consumatori interessati. È inoltre progettato per essere scalabile, consentendo una gestione efficiente di grandi volumi di eventi in applicazioni distribuite.
+
+Il  diagramma di sequenza semplificato (vedi Diagramma 1) illustra l'interazione tra *Producer*, *Consumer* e l`'*Event Bus*.
+
+. *Producer*
+** Il Producer genera un evento o un messaggio.
+** Questo evento viene inviato all'Event Bus.
+** Nel diagramma, rappresentiamo il Producer come una freccia che punta verso l'Event Bus.
+. *Event Bus*
+** L'Event Bus riceve l'evento dal Producer.
+** L'Event Bus inoltra l'evento a tutti i Consumer interessati.
+. *Consumer*
+** I Consumer sono i destinatari dell'evento.
+** Ogni Consumer riceve l'evento dall'Event Bus.
+
+<<<
+
+[mermaid]
+....
+sequenceDiagram
+	autonumber
+	Producer ->> Producer: Generate Message/Event
+	Producer -->> Event Bus: Publish Message/Event (async)
+	Event Bus -->> Consumer: Forward Message/Event (async)
+	Consumer ->> Consumer: Process Message/Event
+
+ Note over Producer,Consumer: A typical interaction
+....
+*Diagramma 1* - Interazione tra Producer, Consumer e l'Event Bus

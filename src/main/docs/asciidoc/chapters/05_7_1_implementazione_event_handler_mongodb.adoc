@@ -1,0 +1,290 @@
+==== Implementazione Event Handler MongoDB
+
+Prima di procedere con l'implementazione dell'Event Handler per il tracciamento su MongoDB, è necessario aggiungere la dipendenza per il driver MongoDB al progetto Quarkus. Questo può essere fatto tramite la CLI di Quarkus o tramite Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
+
+[source,shell]
+....
+# Aggiungere la dipendenza per il driver MongoDB
+# tramite la CLI di Quarkus
+quarkus extension add mongodb-client
+
+# Aggiungere la dipendenza per il driver MongoDB
+# tramite il comando Maven
+mvn quarkus:add-extension -Dextensions='mongodb-client'
+....
+*Console 11* - Installazione estensione MongoDB di Quarkus tramite CLI o Maven
+
+La documentazione di Quarkus https://quarkus.io/guides/mongodb[MongoDB] fornisce tutte le informazioni necessarie per configurare il client MongoDB e per implementare le operazioni CRUD. Nel nostro caso utilizzeremo la https://quarkus.io/guides/mongodb#reactive[versione reattiva] del client MongoDB.
+
+L'Event Handler `MongoDbEventHandler` è il componente per il tracciamento su MongoDB; è un consumer registrato sull'Event Bus con l'indirizzo virtuale definito in `app.eventbus.consumer.event.handler.addresses[1]` sul file di configurazione `application.properties` dell'applicazione Quarkus.
+
+Il metodo `void handleEvent(Message<JsonObject> message)` è responsabile di:
+
+. leggere gli header dal messaggio ricevuto e in particolare l'header `SOURCE_COMPONENT` che contiene il nome del componente sorgente;
+. creare un documento MongoDB a partire dal messaggio ricevuto tenendo conto del componente sorgente (vedi il metodo `Document getMongoDbDocument(String sourceComponent, JsonObject jsonObject)`);
+. inserire il documento MongoDB nel database specificato dalla configurazione `app.eventbus.consumer.event.handler.nosql.mongodb.database.name` e nella collezione indicata dalla configurazione `app.eventbus.consumer.event.handler.nosql.mongodb.database.collection`. Utilizzando la parte reattiva del client MongoDB, l'inserimento del documento nel database è asincrono (vedi corpo del metodo `+subscribe().with(...)+` ) e il risultato dell'operazione è inviato come risposta al Dispatcher (vedi il metodo `message.reply()` in caso di successo e il metodo `message.fail()` in caso di fallimento).
+
+<<<
+
+[source,java]
+....
+package it.dontesta.eventbus.consumers.events.handlers.nosql;
+
+import io.quarkus.mongodb.reactive.ReactiveMongoClient;
+import io.quarkus.mongodb.reactive.ReactiveMongoCollection;
+import io.quarkus.runtime.StartupEvent;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.Message;
+import it.dontesta.eventbus.consumers.http.HttpRequestConsumer;
+import it.dontesta.eventbus.consumers.http.HttpResponseConsumer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import org.bson.Document;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+
+@ApplicationScoped
+public class MongoDbEventHandler {
+
+  @Inject
+  EventBus eventBus;
+
+  @Inject
+  Logger log;
+
+  @Inject
+  ReactiveMongoClient mongoClient;
+
+  @ConfigProperty(name = "app.eventbus.consumer.event.handler.addresses[1]")
+  String mongoDbEventHandlerVirtualAddress;
+
+  @ConfigProperty(name = "app.eventbus.consumer.event.handler.nosql.mongodb.database.name",
+      defaultValue = "audit")
+  String databaseName;
+
+  @ConfigProperty(name = "app.eventbus.consumer.event.handler.nosql.mongodb.database.collection",
+      defaultValue = "jax-rs-requests")
+  String databaseCollectionName;
+
+  public static final String SOURCE_COMPONENT = "source-component";
+
+  void onStart(@Observes StartupEvent ev) {
+    log.debugf(
+        "Registering the MongoDB event handler at addresses: {%s}",
+        mongoDbEventHandlerVirtualAddress);
+
+    eventBus.consumer(mongoDbEventHandlerVirtualAddress, this::handleEvent);
+  }
+
+  // Method to handle the event
+  public void handleEvent(Message<JsonObject> message) {
+    // Recupera il componente sorgente dagli header del messaggio
+    // e il corpo del messaggio stesso in formato JsonObject
+    String sourceComponent = message.headers().get(SOURCE_COMPONENT);
+    JsonObject body = message.body();
+
+    // Crea un documento MongoDB a partire dal messaggio dell'evento
+    Document mongoDbDocument = getMongoDbDocument(sourceComponent, body);
+
+    if (mongoDbDocument == null) {
+      message.fail(1, "Could not create a MongoDB document from the event message.");
+      return;
+    }
+
+    // Inserisci il documento MongoDB nel database
+    getCollection().insertOne(mongoDbDocument).subscribe().with(
+        result -> message.reply(
+            "Documents inserted successfully with Id %s".formatted(result.getInsertedId())),
+        failure -> message.fail(-1, "Errors occurred while inserting the document.")
+    );
+  }
+
+  /**
+   * Metodo per ottenere la collezione MongoDB specificata nel parametro di configurazione
+   * {@code app.eventbus.consumer.event.handler.nosql.mongodb.database.collection}.
+   *
+   * @return la collezione MongoDB specificata
+   */
+  private ReactiveMongoCollection<Document> getCollection() {
+    return mongoClient.getDatabase(databaseName).getCollection(databaseCollectionName);
+  }
+
+  /**
+   * Metodo per creare un documento MongoDB a partire dal messaggio dell'evento.
+   *
+   * <p>In questo caso si considerano solo due componenti sorgente: HttpRequestConsumer e
+   * HttpResponseConsumer tramite il parametro sourceComponent
+   * restituendo un documento MongoDB creato con la stessa struttura.
+   *
+   * @param sourceComponent il componente sorgente dell'evento
+   * @param jsonObject      il messaggio dell'evento
+   * @return il documento MongoDB creato
+   */
+  private Document getMongoDbDocument(String sourceComponent, JsonObject jsonObject) {
+    if (sourceComponent.equals(HttpRequestConsumer.class.getName())) {
+      return Document.parse(jsonObject.encode());
+    }
+
+    if (sourceComponent.equals(HttpResponseConsumer.class.getName())) {
+      return Document.parse(jsonObject.encode());
+    }
+
+    return null;
+  }
+
+}
+....
+*Code 8* - Implementazione dell'Event Handler per il tracciamento su MongoDB
+
+A questo punto non resta che provare il funzionamento dell'Event Handler per il tracciamento su MongoDB. Per fare ciò abbiamo due possibilità:
+
+. avviare l'applicazione tramite il comando `quarkus dev` e fare una richiesta cURL verso l'endpoint `/api/rest/echo` verificando che il messaggio sia correttamente tracciato su MongoDB;
+. eseguire gli unit test utilizzando il comando `quarkus test` o `mvn test` verificando che il messaggio sia correttamente tracciato su MongoDB.
+
+[source,shell]
+....
+# Chiamata cURL verso l'endpoint /api/rest/echo per testare il tracciamento su MongoDB
+curl -v -H "Content-Type: application/json" \
+  -d '{"message": "Test di tracking richiesta JAX-RS su MongoDB tramite Event Handler MongoDbEventHandler"}' \
+  http://localhost:8080/api/rest/echo
+
+# Risultato atteso
+
+* Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080
+> POST /api/rest/echo HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/8.4.0
+> Accept: _/_
+> Content-Type: application/json
+> Content-Length: 101
+>
+< HTTP/1.1 200 OK
+< Content-Type: application/json;charset=UTF-8
+< content-length: 101
+< Set-Cookie: user_tracking_id=a17dbd96-fda1-4cec-92b1-a0c72bee645b;Version=1;Comment="Cookie di tracciamento dell'utente";Path=/;Max-Age=2592000
+< X-Correlation-ID: a3fb63ac-7c69-46d0-90df-704ddad49664
+<
+* Connection #0 to host localhost left intact
+{"message": "Test di tracking richiesta JAX-RS su MongoDB tramite Event Handler MongoDbEventHandler"}
+....
+*Console 12* - Esecuzione del test di tracciamento su MongoDB chiamando l'endpoint /api/rest/echo
+
+Verificando il log dell'applicazione dovreste vedere i messaggi di tracciamento circa lo store su MongoDB come mostrato a seguire, e in particolare quelli contenenti gli identificativi dei documenti https://it.wikipedia.org/wiki/BSON[BSON], che dovrebbero essere due, quello di richiesta e di risposta.
+
+[source,shell]
+....
+2024-04-12 12:02:26,389 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: nosql-trace with result: Documents inserted successfully with Id BsonObjectId{value=661906b2a06f98122c332bf3}
+2024-04-12 12:02:26,392 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: nosql-trace with result: Documents inserted successfully with Id BsonObjectId{value=661906b2a06f98122c332bf4}
+....
+*Console 13* - Log di tracciamento su MongoDB
+
+Una volta ottenuti gli identificativi dei documenti BSON, potete verificare il contenuto degli stessi eseguendo il comando `podman exec -it <container_name or container_id> mongo audit --eval "db.getCollection('jax-rs-requests').find('<bsonObjectId>')"`. Prima di eseguire il comando precedente, dovreste sostituire `<container_name or container_id>` con il nome o l'identificativo del container MongoDB e `<bsonObjectId>` con l'identificativo del documento BSON.
+
+Per ottenere l'identificativo del container MongoDB, eseguite il comando `podman ps` e cercate il container creato dall'immagine di MongoDB. A seguire un esempio di output del comando `podman ps`.
+
+[TIP]
+====
+*Nota*: per coloro che non abbiano installato Podman, possono utilizzare i comandi Docker al posto di Podman, per cui, il comando precedente per verificare il documento su MongoDB diventa: `docker exec -it <container_name or container_id> mongo audit --eval "db.getCollection('jax-rs-requests').find('<bsonObjectId>')"`.
+====
+
+[source,shell]
+....
+CONTAINER ID  IMAGE                                COMMAND               CREATED            STATUS            PORTS                     NAMES
+81bf31e3e393  docker.io/testcontainers/ryuk:0.6.0  /bin/ryuk             About an hour ago  Up About an hour  0.0.0.0:42179->8080/tcp   testcontainers-ryuk-c0624f11-3e13-4c74-9b9b-398295c423ff
+ef48a8b51727  docker.io/library/mongo:4.4          --replSet docker-...  About an hour ago  Up About an hour  0.0.0.0:45925->27017/tcp  awesome_leavitt
+....
+*Console 14* - Esempio di output del comando `podman ps`
+
+Una volta ottenuto l'identificativo del container di MongoDB, è possibile procedere con la verifica del contenuto dei documenti BSON. A seguire l'esempio di ciò che dovreste ottenere.
+
+<<<
+
+[source,shell]
+....
+# Interrogazione di MongoDB per ottenere il contenuto del documento Bson con identificativo 661906b2a06f98122c332bf3
+podman exec -it ef48a8b51727 mongo audit --eval "db.getCollection('jax-rs-requests').find(ObjectId('661906b2a06f98122c332bf3')).pretty()"
+
+# Output atteso
+
+{
+	"_id" : ObjectId("661906b2a06f98122c332bf3"),
+	"X-Correlation-ID" : "a3fb63ac-7c69-46d0-90df-704ddad49664",
+	"remote-ip-address" : "127.0.0.1",
+	"headers" : {
+		"User-Agent" : [
+			"curl/8.4.0"
+		],
+		"Host" : [
+			"localhost:8080"
+		],
+		"Accept" : [
+			"*/*"
+		],
+		"Content-Length" : [
+			"101"
+		],
+		"Content-Type" : [
+			"application/json"
+		]
+	},
+	"body" : "{"message": "Test di tracking richiesta JAX-RS su MongoDB tramite Event Handler MongoDbEventHandler"}",
+	"uri-info" : "http://localhost:8080/api/rest/echo",
+	"local-date-time-in" : "2024-04-12T12:02:26.372554",
+	"method" : "POST",
+	"media-type" : "application/json",
+	"acceptable-language" : "[]",
+	"acceptable-media-types" : "[*/*]"
+}
+....
+*Console 15* - Contenuto del documento Bson con identificativo 661906b2a06f98122c332bf3 che contiene alcune informazioni dellla request JAX-RS
+
+I due documenti possono essere collegati tramite l'identificativo `X-Correlation-ID` che è presente sia nel documento della request che in quello della response.
+
+<<<
+
+[source,shell]
+....
+# Interrogazione di MongoDB per ottenere il contenuto del documento Bson con identificativo 661906b2a06f98122c332bf4
+podman exec -it ef48a8b51727 mongo audit --eval "db.getCollection('jax-rs-requests').find('661906b2a06f98122c332bf4').pretty()"
+
+# Output atteso
+
+{
+	"_id" : ObjectId("661906b2a06f98122c332bf4"),
+	"X-Correlation-ID" : "a3fb63ac-7c69-46d0-90df-704ddad49664",
+	"local-date-time-out" : "2024-04-12T12:02:26.373859",
+	"status" : 200,
+	"status-info-family-name" : "SUCCESSFUL",
+	"status-info-reason" : "OK",
+	"headers" : {
+		"X-Correlation-ID" : "a3fb63ac-7c69-46d0-90df-704ddad49664",
+		"Set-Cookie" : "user_tracking_id=a17dbd96-fda1-4cec-92b1-a0c72bee645b;Version=1;Comment="Cookie di tracciamento dell'utente";Path=/;Max-Age=2592000"
+	},
+	"body" : "{"message": "Test di tracking richiesta JAX-RS su MongoDB tramite Event Handler MongoDbEventHandler"}"
+}
+....
+*Console 16* - Contenuto del documento Bson con identificativo 661906b2a06f98122c332bf4 che contiene alcune informazioni della response JAX-RS
+
+Se ricordate, in configurazione abbiamo definito tutti e quattro gli indirizzi virtuali per gli Event Handler ma abbiamo implementato solo due di questi; di conseguenza, quando il Dispatcher cercherà di inviare il messaggio alle due destinazioni mancanti, riceverà dall'Event Bus un errore di mancata ricezione di risposta dagli Event Handler che difatto non sono disponibili (`(NO_HANDLERS,-1) No handlers for address sql-trace`). Questo è un comportamento normale e non preoccupatevi, in produzione non dovreste mai avere questo tipo di problema, in quanto tutti gli Event Handler dovrebbero essere implementati e funzionanti o qualora non fossero disponibili, basterà non metterli in configurazione.
+
+[source,shell]
+....
+2024-04-12 12:02:26,376 ERROR [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Failed to receive response from target virtual address: queue-trace with failure: (NO_HANDLERS,-1) No handlers for address queue-trace
+2024-04-12 12:02:26,381 ERROR [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Failed to receive response from target virtual address: sql-trace with failure: (NO_HANDLERS,-1) No handlers for address sql-trace
+....
+*Console 17* - Errori di mancata ricezione di risposta dagli Event Handler per il tracciamento su Queue e su un database SQL
+
+<<<
+
+Lascio a voi la verifica attraverso gli unit test dell'Event Handler per il tracciamento su MongoDB eseguendo il comando `quarkus test` o `mvn test`.  In ogni caso dovreste ottenere un risultato simile a quello mostrato a seguire e che potete vedere anche qui https://asciinema.org/a/653804[Test Quarkus Event Bus: Event Handler MongoDB].
+
+image::https://asciinema.org/a/653804.svg[asciicast,link=https://asciinema.org/a/653804]
+
+*Asciinema 1* - Esecuzione degli unit test che mostra l'Event Handler per il tracciamento su MongoDB in azione
+
+A questo punto abbiamo completato l'implementazione dell'Event Handler per il tracciamento su MongoDB. Possiamo procedere con l'implementazione dell'Event Handler per il tracciamento sulla coda AMQP.
+
+<<<

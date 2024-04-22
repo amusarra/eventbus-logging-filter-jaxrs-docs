@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.dontesta.eventbus.docs</groupId>
+    <artifactId>eventbus-logging-filter-jaxrs-docs</artifactId>
+    <version>1.0.8-RC1</version>
+
+    <name>eventbus-logging-filter-jaxrs-docs</name>
+    <description>EventBus Logging Filter JAX-RS Docs (eBook)</description>
+    <inceptionYear>2024</inceptionYear>
+    <organization>
+        <name>Antonio Musarra's Blog</name>
+        <url>https://www.dontesta.it</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>Creative Commons Attribution-NonCommercial-ShareAlike 4.0</name>
+            <url>https://creativecommons.org/licenses/by-nc-sa/4.0/deed.it</url>
+        </license>
+    </licenses>
+    <url>https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <asciidoctor.maven.plugin.version>3.0.0</asciidoctor.maven.plugin.version>
+        <asciidoctorj.pdf.version>2.3.15</asciidoctorj.pdf.version>
+        <asciidoctorj.version>2.5.12</asciidoctorj.version>
+        <asciidoctorj.diagram.version>2.3.0</asciidoctorj.diagram.version>
+        <asciidoctorj.diagram-plantuml.version>1.2024.3</asciidoctorj.diagram-plantuml.version>
+        <asciidoctorj.diagram-ditaamini.version>1.0.3</asciidoctorj.diagram-ditaamini.version>
+        <jruby.version>9.4.6.0</jruby.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>process-resources</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>${asciidoctorj.pdf.version}</version>
+                    </dependency>
+                    <!-- Comment this section to use the default jruby artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby</artifactId>
+                        <version>${jruby.version}</version>
+                    </dependency>
+                    <!-- Comment this section to use the default AsciidoctorJ artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>${asciidoctorj.diagram.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram-plantuml</artifactId>
+                        <version>${asciidoctorj.diagram-plantuml.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram-ditaamini</artifactId>
+                        <version>${asciidoctorj.diagram-ditaamini.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                    <sourceDirectory>src/main/docs/asciidoc</sourceDirectory>
+                    <enableVerbose>true</enableVerbose>
+                    <logHandler>
+                        <outputToConsole>true</outputToConsole>
+                    </logHandler>
+                    <!-- Attributes common to all output formats -->
+                    <attributes>
+                        <attribute-missing>warn</attribute-missing>
+                        <allow-uri-read>true</allow-uri-read>
+                        <source-highlighter>rouge</source-highlighter>
+                        <imagesdir>../resources/images</imagesdir>
+                        <themesdir>../resources/themes</themesdir>
+                        <revnumber>${project.version}</revnumber>
+                        <revdate>${maven.build.timestamp}</revdate>
+                        <revremark>Digital Version</revremark>
+                        <organization>${project.organization.name}</organization>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-pdf-doc-basic-theme</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>pdf</backend>
+                            <doctype>book</doctype>
+                            <sourceDocumentName>index.adoc</sourceDocumentName>
+                            <outputDirectory>${project.build.directory}/generated-docs-basic-theme</outputDirectory>
+                            <outputFile>${project.artifactId}-${project.version}.pdf</outputFile>
+                            <attributes>
+                                <pdf-theme>basic</pdf-theme>
+                                <pdf-themesdir>${project.basedir}/src/main/docs/resources/themes</pdf-themesdir>
+                                <icons>font</icons>
+                                <pagenums/>
+                                <toc/>
+                                <idprefix/>
+                                <idseparator>-</idseparator>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
