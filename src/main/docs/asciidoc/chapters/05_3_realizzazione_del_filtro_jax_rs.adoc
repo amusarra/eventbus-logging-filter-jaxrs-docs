@@ -23,7 +23,7 @@ Dato che un diagramma è più efficace di mille parole, consiglio di fare riferi
 
 Se avete visto il diagramma della _Processing Pipeline_, il nostro interesse è il lato server (non il client) e il diagramma a seguire mostra i cosiddetti *punti di estensione*. Il nostro lavoro consiste nell'implementazione delle due interfacce `ContainerRequestFilter` e `ContainerResponseFilter` che intercettano le richieste in arrivo e le risposte in uscita rispettivamente. Un punto da tenere in considerazione è l'ordine di esecuzione dei filtri che dipende dalla priorità loro assegnata (per maggiori dettagli fare riferimento https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#provider_priorities[Priorities] delle specifiche Jakarta RESTful Web Services).
 
-[mermaid]
+[mermaid, title="*Diagramma 6* - Punti di estensione del filtro e dell'interceptor lato server"]
 ....
 graph LR
   methodInvocke[Method Invocation]
@@ -56,11 +56,12 @@ classDef reqFlowStyleClass fill:#f9f,stroke:#333,stroke-width:2px;
  class respFlow orange;
  class req,pContReq,reqMatching,contReq,readInt,contResp,writeInt,resp white;
 ....
-*Diagramma 6* - Punti di estensione del filtro e dell'interceptor lato server
 
 Il diagramma di classe a seguire mostra la classe `TraceJaxRsRequestResponseFilter` (il nostro filtro JAX-RS) che implementa le due interfacce `ContainerRequestFilter` e `ContainerResponseFilter` e in particolare i due metodi `filter()`.
 
-[mermaid]
+<<<
+
+[mermaid, title="*Diagramma 7* - Relazioni del filtro JAX-RS TraceJaxRsRequestResponseFilter"]
 ....
 classDiagram
 	class TraceJaxRsRequestResponseFilter {
@@ -89,7 +90,6 @@ Provider .. TraceJaxRsRequestResponseFilter
 Priority .. TraceJaxRsRequestResponseFilter
 Application .. TraceJaxRsRequestResponseFilter
 ....
-*Diagramma 7* - Relazioni del filtro JAX-RS TraceJaxRsRequestResponseFilter
 
 Il corpo dei due metodi `filter()` deve contenere la logica necessaria per prepare i messaggi (di request e response) da pubblicare sull'Event Bus di Quarkus.
 
@@ -97,7 +97,7 @@ Il codice del filtro `TraceJaxRsRequestResponseFilter` mostrato a seguire, ripor
 
 <<<
 
-[source,java]
+[source,java, title="*Code 3* - Classe TraceJaxRsRequestResponseFilter che implementa il filtro JAX-RS"]
 ....
 package it.dontesta.eventbus.ws.filter;
 
@@ -222,8 +222,6 @@ public class TraceJaxRsRequestResponseFilter implements ContainerRequestFilter,
   }
 }
 ....
-*Code 3* - Classe TraceJaxRsRequestResponseFilter che implementa il filtro JAX-RS
-
 
 Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), siamo nelle condizioni di poter eseguire un test. Guardando con attenzione l'implemetazione attuale, quali sono i punti salienti?
 
@@ -232,11 +230,11 @@ Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), s
 .. Il parametro `app.filter.uris` consente di specificare quali siano le URI che devono essere sottoposte a operazioni di filtraggio.
 . Il filtro fa in modo di generare il cosiddetto *_correlationId_* che consente di legare richiesta e risposta. Questo viene poi impostato come valore dell'http header (custom) X-Correlation-ID.
 
-A seguire è possibile vedere i parametri di configurazione menzionati in precedenza e i rispettivi valori. In particolare il parametro  `app.filter.uris` è difatto un array che al momento contiene un solo elemento.
-
 <<<
 
-[source,properties]
+A seguire è possibile vedere i parametri di configurazione menzionati in precedenza e i rispettivi valori. In particolare il parametro  `app.filter.uris` è difatto un array che al momento contiene un solo elemento.
+
+[source,properties, title="*Configurazione 2* - Contenuto del file di configurazione application.properties"]
 ....
 # The path of the banner (path relative to root of classpath) which could be provided by user
 quarkus.banner.path=quarkus-banner.txt
@@ -254,7 +252,6 @@ app.filter.enabled=true
 # The URIs that the filter should be applied to.
 app.filter.uris[0]=/api/rest
 ....
-*Configurazione 2* - Contentuo del file di configurazione application.properties
 
 Eseguendo un test allo stato attuale dell'implementazione del progetto, quale dovrebbe essere il risultato atteso?
 
@@ -262,7 +259,7 @@ Effettuando una chiamata verso l'endpoint http://localhost:8080/api/rest/echo, d
 
 <<<
 
-[source, shell]
+[source, shell, title="*Console 8* - Esecuzione del test sul filtro JAX-RS implementato"]
 ....
 # Esecuzione del test sul filtro JAX-RS implementato
 # eseguendo la chiamata verso l'endpoint http://localhost:8080/api/rest/echo
@@ -287,6 +284,5 @@ http://localhost:8080/api/rest/echo
 * Connection #0 to host localhost left intact
 {"message": "Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID"}
 ....
-*Console 8* - Esecuzione del test sul filtro JAX-RS implementato
 
 Sul repository GitHub del progetto è disponibile lo unit test `CorrelationIdHttpHeaderTest` che si accerta che a fronte di una chiamata verso l'endpoint `/api/rest/echo` di ottenere in risposta l'header X-Correlation-ID il cui contenuto sia una stringa in formato UUID Type 4.

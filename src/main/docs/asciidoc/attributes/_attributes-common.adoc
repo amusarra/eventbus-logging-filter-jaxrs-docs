@@ -15,4 +15,5 @@ su eventi.
 :hardbreaks-option:
 :sectnums:
 :sectnumlevels: 3
+:!figure-caption:
 :!chapter-signifier:

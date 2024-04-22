@@ -23,7 +23,7 @@ Il  diagramma di sequenza semplificato (vedi Diagramma 1) illustra l'interazione
 
 <<<
 
-[mermaid]
+[mermaid, title="*Diagramma 1* - Interazione tra Producer, Consumer e l'Event Bus"]
 ....
 sequenceDiagram
 	autonumber
@@ -34,4 +34,3 @@ sequenceDiagram
 
  Note over Producer,Consumer: A typical interaction
 ....
-*Diagramma 1* - Interazione tra Producer, Consumer e l'Event Bus

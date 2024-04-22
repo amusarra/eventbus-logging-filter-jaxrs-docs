@@ -14,7 +14,7 @@ L'header d'interesse per il Dispatcher è `TARGET_VIRTUAL_ADDRESSES` che contien
 
 <<<
 
-[source,java]
+[source,java,title="*Code 6* - Revisione del consumer `HttpRequestConsumer` per includere le informazioni per il Dispatcher"]
 ....
 ...
 @ApplicationScoped
@@ -48,7 +48,6 @@ public class HttpRequestConsumer {
   }
 }
 ....
-*Code 6* - Revisione del consumer `HttpRequestConsumer` per includere le informazioni per il Dispatcher
 
 Dobbiamo quindi implementare il Dispatcher tenendo conto delle informazioni presenti sull'header `TARGET_VIRTUAL_ADDRESSES`  e che dobbiamo ricevere l'esito dell'elaborazione del messaggio da parte degli Event Handler. A seguire il codice completo del Dispatcher.
 
@@ -57,7 +56,7 @@ Il metodo `void handleEvent(Message<JsonObject> message)` è responsabile di:
 . leggere gli header dal messaggio ricevuto e in particolare l'header `TARGET_VIRTUAL_ADDRESSES` che contiene gli indirizzi virtuali degli Event Handler;
 . inviare il messaggio a tutti gli Event Handler specificati nell'header `TARGET_VIRTUAL_ADDRESSES` (tramite il metodo `eventBus.<String>request()`) e attende (in async mode) l'esito dell'elaborazione del messaggio da parte degli Event Handler. L'esito dell'elaborazione è loggato in console.
 
-[source,java]
+[source,java,title="*Code 7* - Implementazione del Dispatcher"]
 ....
 package it.dontesta.eventbus.consumers.events.handlers;
 
@@ -140,7 +139,6 @@ public class Dispatcher {
   }
 }
 ....
-*Code 7* - Implementazione del Dispatcher
 
 Passiamo adesso all'implementazione degli Event Handler. Questi componenti sono consumer registrati sull'Event Bus con gli indirizzi virtuali definiti in `app.eventbus.consumer.event.handler.addresses` sul file di configurazione `application.properties` dell'applicazione Quarkus.
 

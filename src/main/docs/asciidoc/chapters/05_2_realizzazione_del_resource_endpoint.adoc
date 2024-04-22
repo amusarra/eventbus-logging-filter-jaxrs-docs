@@ -8,21 +8,20 @@ Per abilitare il modulo è sufficiente usare la CLI di Quarkus eseguendo il coma
 
 <<<
 
-[source,xml]
+[source,xml, title="*Configurazione 1* - Dipendenza del modulo Quarkus Rest da aggiungere al pom.xml del progetto"]
 ....
 <dependency>
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-rest</artifactId>
 </dependency>
 ....
-*Configurazione 1* - Dipendenza del modulo Quarkus Rest da aggiungere al pom.xml del progetto
 
 Installando il modulo tramite la CLI di Quarkus, l'output atteso e indicato a seguire.
 
-```
+[source, shell, title="*Console 3* - Output del comando quarkus ext add che informa l'avvenuta aggiunta del modulo al progetto"]
+....
 [SUCCESS] Extension io.quarkus:quarkus-rest has been installed
-```
-*Console 3* - Output del comando quarkus ext add che informa l'avvenuta aggiunta del modulo al progetto
+....
 
 Oltre ad aggiungere il modulo Quarkus REST aggiungiamo anche i moduli:
 
@@ -31,7 +30,7 @@ Oltre ad aggiungere il modulo Quarkus REST aggiungiamo anche i moduli:
 
 Per l'abilitazione dei due moduli è sufficiente usare la CLI di Quarkus eseguendo i comandi `quarkus ext add io.quarkus:hibernate-validator` e `quarkus ext add io.quarkus:quarkus-rest-jackson` o aggiungere le due dipendenze al pom.xml del progetto.
 
-[source,xml]
+[source,xml, title="*Configurazione 2* - Dipendenza del modulo Hibernate Validator e Quarkus REST Jackson da aggiungere al pom.xml del progetto"]
 ....
 <dependency>
     <groupId>io.quarkus</groupId>
@@ -43,16 +42,17 @@ Per l'abilitazione dei due moduli è sufficiente usare la CLI di Quarkus eseguen
     <artifactId>quarkus-rest-jackson</artifactId>
 </dependency>
 ....
-*Configurazione 2* - Dipendenza del modulo Hibernate Validator e Quarkus REST Jackson
 
 [TIP]
 ====
 *Nota*: È possibile aggiungere le dipendenze di moduli Quarkus sfruttando anche il plugin https://quarkus.io/guides/quarkus-maven-plugin[Maven di Quarkus] eseguendo il comando `mvn quarkus:add-extension -Dextensions='<nome-estensione>'` o `./mvnw quarkus:add-extension -Dextensions='<nome-estensione>'`.
 ====
 
+<<<
+
 A questo punto passiamo alla creazione dell'https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#applications[Application JAX-RS] e del https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#resources[Resource Endpoint] Echo che si traduce rispettivamente nella scrittura delle due classi `EventBusApplication` e  `EchoResourceEndPoint` mostrate a seguire.
 
-[source, java]
+[source, java, title="*Code 1* - Application JAX-RS dove viene impostato il contest root per le API"]
 ....
 package it.dontesta.eventbus.ws;
 
@@ -63,10 +63,8 @@ import jakarta.ws.rs.core.Application;
 public class EventBusApplication extends Application {
 }
 ....
-*Code 1* - Application JAX-RS dove viene impostato il contest root per le API
 
-
-[source, java]
+[source, java, title="*Code 2* - Resource Endpoint per il servizio Rest di echo"]
 ....
 package it.dontesta.eventbus.ws.resources.endpoint;
 
@@ -93,12 +91,11 @@ public class EchoResourceEndPoint {
   }
 }
 ....
-*Code 2* - Resource Endpoint per il servizio Rest di echo
 
 Una volta aggiunte le due classi al progetto, sarà possibile avviare l'applicazione ed eseguire un semplice test attraverso l'ausilio del comando cURL. Rispetto a prima, il progetto sarà così strutturato.
 
 <<<
-[source,shell]
+[source,shell, title="*Console 4* - Struttura del progetto Quarkus dopo la creazione delle classi EventBusApplication e EchoResourceEndPoint"]
 ....
 .
 ├── README.md
@@ -126,11 +123,10 @@ Una volta aggiunte le due classi al progetto, sarà possibile avviare l'applicaz
 
 12 directories, 11 files
 ....
-*Console 4* - Struttura del progetto Quarkus dopo la creazione delle classi EventBusApplication e EchoResourceEndPoint
 
 Per avviare il progetto ed eseguire il test del servizio che risponde alla URL `/api/rest/echo` è sufficiente eseguire i seguenti comandi.
 
-[source,shell]
+[source,shell, title="*Console 5* - Esecuzione dell'applicazione Quarkus in Dev Mode"]
 ....
 # Esecuzione dell'applicazione in Dev Mode utilizzando Quarkus CLI
 quarkus dev
@@ -138,18 +134,16 @@ quarkus dev
 # Esecuzione dell'applicazione in Dev Mode utilizzando Maven
 mvn clean quarkus:dev
 ....
-*Console 5* - Esecuzione dell'applicazione Quarkus in Dev Mode
 
 <<<
 
 Se tutto è andato per il verso giusto, dovreste ottenere in console un output simile a quello mostrato a seguire. Dall'output sono disponibili diverse informazioni e una di nostra interesse è la porta di ascolto per i servizi HTTP, in questo caso http://localhost:8080 (URL di default).
 
-image::primo_avvio_di_quarkus.jpg[primo_avvio_di_quarkus]
-*Figura 3* - Output del primo avvio dell'applicazione Quarkus
+image::primo_avvio_di_quarkus.jpg[title="*Figura 3* - Output del primo avvio dell'applicazione Quarkus"]
 
 Per testare il servizio di echo è sufficiente eseguire il comando cURL che punti all'indirizzo http://localhost:8080/api/rest/echo passando un payload JSON che sia compreso tra 32 byte e 4096 byte (vedi riga 19 di code 2). Il risultato atteso in risposta e appunto il riflesso dell'input, ovvero, il payload fornito in input.
 
-[source,shell]
+[source,shell, title="*Console 6* - Test del servizio `/api/rest/echo` attraverso il tool cURL (richiesta e risposta)"]
 ....
 # Esecuzione della chiamata JAX-RS verso l'endpoint /api/rest/echo
 curl -v \
@@ -216,13 +210,12 @@ http://localhost:8080/api/rest/echo
 }
 * Connection #0 to host localhost left intact
 ....
-*Console 6* - Test del servizio `/api/rest/echo` attraverso il tool cURL (richiesta e risposta)
 
 Se ricordate, l'implemetazione del servizio fa uso delle Validation Bean API (vedi code 2) e in particolare per il parametro di input, cui è richiesta  una dimensione tra 32 byte e 4096 byte. Nel caso in cui il parametro di input non dovesse rispettare questa regola, il servizio risponderà con un codice HTTP/400 (o Bad Request) e un JSON con il dettaglio dell'errore, così come indicato a seguire.
 
 <<<
 
-[source,shell]
+[source,shell, title="*Console 7* - Test del servizio `/api/rest/echo` attraverso il tool cURL (richiesta e risposta) e in particolare della validazione dell'input"]
 ....
 # Esecuzione della chiamata JAX-RS verso l'endpoint /api/rest/echo
 # con un payload che non rispecchia la regola di validazione.
@@ -260,7 +253,6 @@ http://localhost:8080/api/rest/echo | jq
 ]
 }
 ....
-*Console 7* - Test del servizio `/api/rest/echo` attraverso il tool cURL (richiesta e risposta) e in particolare della validazione dell'input
 
 All'interno del progetto GitHub è possibile trovare la classe di test `EchoResourceEndPointTest` che contiene i test per il servizio di echo e che potete eseguire per verificare il corretto funzionamento del servizio. Per lanciare i test è sufficiente eseguire il comando `mvn test` o `quarkus test` dalla directory del progetto
 

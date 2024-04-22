@@ -10,7 +10,7 @@ Detto ciò, andremo a posizionare il file `common.yml` all'interno del folder `s
 
 <<<
 
-[source,yaml]
+[source,yaml,title="*Configurazione 8* - Descrittore YAML per la ConfigMap e il Secret per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB"]
 ....
 ---
 apiVersion: v1
@@ -40,7 +40,6 @@ data:
   mongodb-connection-url: bW9uZ29kYjovL21vbmdvOjI3MDE3L2F1ZGl0Cg==
 type: Opaque
 ....
-*Configurazione 8* - Descrittore YAML per la ConfigMap e il Secret per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB
 
 <<<
 
@@ -51,7 +50,7 @@ La configurazione del file `application.properties` dell'applicazione Quarkus pe
 . le proprietà `quarkus.amqp-host`, `quarkus.amqp-port`, `quarkus.amqp-username`, `quarkus.amqp-password` sono utilizzate per la connessione al broker AMQP i cui valori sono forniti dalla ConfigMap e dal Secret;
 . la proprietà `quarkus.mongodb.connection-string` è utilizzata per la connessione al database NoSQL MongoDB i cui valori sono forniti dal Secret.
 
-[source,properties]
+[source,properties,title="*Configurazione 9* - Configurazione per connettersi al broker AMQP e al database NoSQL MongoDB"]
 ....
 # The name of the ConfigMap that contains the AMQP host, port
 quarkus.openshift.env.configmaps=amqp-hostname-port
@@ -74,13 +73,12 @@ quarkus.openshift.env.secrets=amqp-username-password,mongodb
 # See the src/kubernetes/common.yaml file for more details.
 %prod.quarkus.mongodb.connection-string=${MONGODB_CONNECTION_URL}
 ....
-*Configurazione 9* - Configurazione per connettersi al broker AMQP e al database NoSQL MongoDB
 
 I valori delle proprietà `quarkus.amqp-host`, `quarkus.amqp-port`, `quarkus.amqp-username`, `quarkus.amqp-password` e `quarkus.mongodb.connection-string` sono forniti dalla ConfigMap e dal Secret come variabili d'ambiente, e sono accessibili nella forma `+${NOME_VARIABILE}+` all'interno del file `application.properties`. La magia di questo meccanismo parte da qui, esattamente dalla riga 4 alla riga 10 dell'estratto del file `openshift.yml` generato dal plugin `quarkus-openshift`.
 
 <<<
 
-[source,yml]
+[source,yml,title="*Configurazione 10* - Estratto del file `openshift.yml` generato dal plugin `quarkus-openshift`"]
 ....
         - env:
             - name: JAVA_APP_JAR
@@ -94,7 +92,6 @@ I valori delle proprietà `quarkus.amqp-host`, `quarkus.amqp-port`, `quarkus.amq
                 name: amqp-hostname-port
           image: eventbus-logging-filter-jaxrs:1.0.0-SNAPSHOT
 ....
-*Configurazione 10* - Magia del meccanismo di ConfigMap e Secret per l'applicazione Quarkus (file `openshift.yml` generato dal plugin `quarkus-openshift`)
 
 Le informazioni autenticazione, come username e password sono quelle di default per l'immagine Docker di Apache ActiveMQ Artemis e di MongoDB. [underline]#Ovviamente questa non è una buona pratica e dovreste cambiare queste informazioni con quelle che ritenete più sicure per il vostro ambiente di produzione.#
 

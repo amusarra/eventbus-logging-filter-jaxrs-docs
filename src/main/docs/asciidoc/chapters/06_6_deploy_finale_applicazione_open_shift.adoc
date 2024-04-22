@@ -6,18 +6,17 @@ A meno di "catastrofi", l'operazione di build e deploy dovrebbe andare a buon fi
 
 Da notare che l'applicazione è pronta per ricevere il traffico, come indicato dallo stato `Running` del pod dell'applicazione `eventbus-logging-filter-jaxrs-7f8b5cd8b7-4z4ms`.
 
-[source,shell]
+[source,shell,title="*Console 31* - Output del comando `oc get pods` per verificare che l'applicazione sia pronta"]
 ....
 NAME                                             READY   STATUS    RESTARTS   AGE
 activemq-artemis-f9584d88c-pgf68                 1/1     Running   0          144m
 eventbus-logging-filter-jaxrs-7f8b5cd8b7-4z4ms   1/1     Running   0          7m26s
 mongo-dc76d7f8d-p7dv7                            1/1     Running   0          58m
 ....
-*Console 31* - Output del comando `oc get pods` per verificare che l'applicazione sia pronta
 
 Adesso, è quindi possibile chiamare l'API del servizio di echo e aspettarci una risposta positiva.
 
-[source,shell]
+[source,shell,title="*Console 32* - Output del comando cURL per chiamare l'API del servizio di echo"]
 ....
 # Chiamata all'API del servizio di echo tramite cURL
 curl -v -H "Content-Type: application/json" \
@@ -47,20 +46,18 @@ curl -v -H "Content-Type: application/json" \
 * Connection #0 to host eventbus-logging-filter-jaxrs-antonio-musarra-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com left intact
 {"message": "Test di tracking richiesta JAX-RS su Dev Sandbox OpenShift"}
 ....
-*Console 32* - Output del comando cURL per chiamare l'API del servizio di echo
 
 Ottimo! Il servizio di echo ha risposto correttamente alla richiesta HTTP e come aspettato. Questo significa che l'applicazione Quarkus è pronta per ricevere il traffico; tramite il comando `oc logs <nome-del-pod>` possiamo verificare che il sistema di tracciamento delle richieste e delle risposte HTTP funzioni correttamente.
 
 Dall'estratto dai log del pod dell'applicazione a seguire, possiamo vedere che il sistema di tracciamento delle richieste verso il broker AMQP e il database NoSQL MongoDB sta funzionando correttamete.
 
-[source,shell]
+[source,shell,title="*Console 33* - Estratto dai log del pod dell'applicazione Quarkus per verificare il funzionamento del sistema di tracciamento"]
 ....
 2024-04-14 18:32:09,370 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: nosql-trace with result: Documents inserted successfully with Id BsonObjectId{value=661c21291140b32ae7b43ea9}
 2024-04-14 18:32:09,371 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: nosql-trace with result: Documents inserted successfully with Id BsonObjectId{value=661c21291140b32ae7b43eaa}
 2024-04-14 18:32:09,377 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: queue-trace with result: Message sent to AMQP queue successfully!
 2024-04-14 18:32:09,378 DEBUG [it.don.eve.con.eve.han.Dispatcher] (vert.x-eventloop-thread-0) Received response from target virtual address: queue-trace with result: Message sent to AMQP queue successfully!
 ....
-*Console 33* - Log del pod dell'applicazione Quarkus per verificare il funzionamento del sistema di tracciamento
 
 Lascio a voi il divertimento di fare le verifiche su MongoDB e AMQP per vedere se i dati sono stati effettivamente inseriti e se i messaggi sono correttamente in coda.
 

@@ -2,7 +2,7 @@
 
 Prima di procedere con l'implementazione dell'Event Handler per il tracciamento sul broker AMQP, è necessario aggiungere le dipendenze per il supporto AMQP al progetto Quarkus. Questo può essere fatto tramite la CLI di Quarkus o tramite Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
 
-[source,shell]
+[source,shell,title="*Console 18* - Installazione estensione AMQP Messaging di Quarkus tramite CLI o Maven"]
 ....
 # Aggiungere la dipendenza per il Reactive Messaging RabbitMQ connector
 # tramite la CLI di Quarkus
@@ -13,13 +13,12 @@ quarkus extension add quarkus-messaging-amqp
 # tramite il comando Maven
 mvn quarkus:add-extension -Dextensions='messaging-rabbitmq'
 ....
-*Console 18* - Installazione estensione AMQP Messaging di Quarkus tramite CLI o Maven
 
 La documentazione di Quarkus https://quarkus.io/guides/amqp[AMQP Messaging 1.0] fornisce tutte le informazioni necessarie per configurare il client AMQP e per implementare le operazioni di invio e ricezione di messaggi. Il broker AMQP che utilizzeremo è https://activemq.apache.org/components/artemis/[Apache ActiveMQ Artemis] che implementa il protocollo https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-overview-v1.0-os.html[AMQP 1.0] ed è già integrato in Quarkus come Dev Services.
 
 La prima attività da fare è configurare il client AMQP per la connessione al broker AMQP. Questo può essere fatto tramite il file di configurazione `application.properties` dell'applicazione Quarkus. A seguire la configurazione per la connessione al broker AMQP.
 
-[source,properties]
+[source,properties,title="*Configurazione 4* - Configurazione del client AMQP per la connessione al broker AMQP"]
 ....
 # Configure the outgoing/incoming AMQP connector and address
 # The outgoing connector is used to send the HTTP request and
@@ -35,7 +34,8 @@ mp.messaging.outgoing.http-response-out.address=http-response
 mp.messaging.incoming.http-request-in.address=http-request
 mp.messaging.incoming.http-response-in.address=http-response
 ....
-*Configurazione 4* - Configurazione del client AMQP per la connessione al broker AMQP
+
+<<<
 
 La configurazione comporta la definizione di quattro connettori AMQP (la cui implementazione è quella di Smallrye), due per l'invio degli eventi HTTP request e response al broker AMQP e due per la ricezione degli eventi HTTP request e response dal broker AMQP. Ogni connettore è associato a un indirizzo AMQP che rappresenta la coda AMQP a cui inviare o da cui ricevere i messaggi.
 
@@ -48,7 +48,7 @@ Il metodo `void handleEvent(Message<JsonObject> message)` è responsabile di:
 . leggere gli header dal messaggio ricevuto e in particolare l'header `SOURCE_COMPONENT` che contiene il nome del componente sorgente;
 . inviare il messaggio alla coda AMQP (vedi metodo `sendToQueue(Message<JsonObject> message, Emitter<JsonObject> emitter)`) per i messaggi di richiesta HTTP se il componente sorgente è `HttpRequestConsumer` e alla coda AMQP per i messaggi di risposta HTTP se il componente sorgente è `HttpResponseConsumer`. L'invio del messaggio alla coda AMQP è asincrono e il risultato dell'operazione è inviato come risposta al Dispatcher (vedi il metodo `message.reply()` in caso di successo e il metodo `message.fail()` in caso di fallimento).
 
-[source,java]
+[source,java,title="*Code 9* - Implementazione dell'Event Handler per il tracciamento sul broker AMQP che in questo caso è Apache ActiveMQ Artemis"]
 ....
 package it.dontesta.eventbus.consumers.events.handlers.queue;
 
@@ -128,7 +128,6 @@ public class AmqpEventHandler {
   }
 }
 ....
-*Code 9* - Implementazione dell'Event Handler per il tracciamento sul broker AMQP che in questo caso è Apache ActiveMQ Artemis
 
 A questo punto non resta che provare il funzionamento dell'Event Handler per il tracciamento sul broker AMQP. Per fare ciò abbiamo due possibilità:
 
@@ -141,7 +140,7 @@ Per reperire il `container-id` del container di Apache ActiveMQ Artemis, eseguir
 
 Per reperire l'indirizzo IP del container di Apache ActiveMQ Artemis, eseguire il comando `podman container inspect --format '{{.NetworkSettings.IPAddress}}' <container-id>` e prendere l'indirizzo IP del container.
 
-[source,shell]
+[source,shell,title="*Console 19* - Consumazione dei messaggi dalla coda AMQP http-request e http-response"]
 ....
 # Comando per registrare un consumer sulla coda AMQP http-request
 podman exec -it <container-id> ./broker/bin/artemis consumer --user guest --password guest --verbose --url tcp://<indirizzo-ip-container>:61616 --protocol AMQP --destination http-request
@@ -159,7 +158,6 @@ Consumer http-response, thread=0 Received {"X-Correlation-ID":"f47c01b2-3ba5-453
 JMS Message ID:null
 Received text sized at 523
 ....
-*Console 19* - Consumazione dei messaggi dalla coda AMQP http-request e http-response
 
 All'interno del progetto è disponibile un componente che funge da consumer per i messaggi inviati alla coda AMQP. Questo componente è `AmqpConsumer` e le annotazioni `@Incoming("http-request-in")` e `@Incoming("http-response-in")` sono utilizzate per definire i canali di messaggistica asincrona attraverso i quali i messaggi vengono ricevuti.
 
@@ -169,7 +167,7 @@ I metodi `CompletionStage<Void> consumeHttpRequest(Message<JsonObject> requestMe
 . loggano il contenuto dei messaggi ricevuti;
 . impostano il messaggio come completato tramite il metodo `message.ack()`.
 
-[source,java]
+[source,java,title="*Code 10* - Implementazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response"]
 ....
 package it.dontesta.eventbus.consumers.events.handlers.queue.incoming;
 
@@ -202,11 +200,10 @@ public class AmqpConsumer {
   }
 }
 ....
-*Code 10* - Implementazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response
 
 Dalla configurazione dell'applicazione Quarkus, questo consumer è stato disabilitato per evitare che di default i messaggi inviati alla coda AMQP siano consumati all'interno della stessa applicazione. Per abilitare il consumer è necessario commentare la configurazione indicata a seguire.
 
-[source,properties]
+[source,properties,title="*Configurazione 5* - Disabilitazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response"]
 ....
 # The list of types that should be excluded from discovery.
 # The types should be specified using their fully qualified name.
@@ -214,4 +211,3 @@ Dalla configurazione dell'applicazione Quarkus, questo consumer è stato disabil
 # In this case, the AmqpConsumer class is excluded
 quarkus.arc.exclude-types=it.dontesta.eventbus.consumers.events.handlers.queue.incoming.AmqpConsumer
 ....
-*Configurazione 5* - Disabilitazione del consumer per i messaggi inviati alla coda AMQP http-request e http-response

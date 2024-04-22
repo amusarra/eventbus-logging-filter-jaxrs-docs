@@ -13,7 +13,7 @@ La documentazione di Quarkus https://quarkus.io/guides/reactive-event-bus[Using 
 
 In questo progetto ho voluto usare un diverso approccio, ovvero, definire gli indirizzi virtuali sulla configurazione dell'applicazione e poi gestire in modo fine la gestione della registrazione dei consumer. A seguire è mostrata la sezione della configurazione dei sei indirizzi virtuali sul file `application.properties`.
 
-[source,properties]
+[source,properties, title="*Configurazione 3* - Configurazione degli indirizzi virtuali dell'Event Bus su cui registrare i relativi consumer"]
 ....
 # Define the Event Bus virtual address for the HTTP request event
 app.eventbus.consumer.http.request.address=http-request
@@ -29,4 +29,3 @@ app.eventbus.consumer.event.handler.addresses[2]=queue-trace
 # Define the Event Bus virtual address for the Dispatcher
 app.eventbus.consumer.dispatcher.address=dispatcher-event
 ....
-*Configurazione 3* - Configurazione degli indirizzi virtuali dell'Event Bus su cui registrare i relativi consumer

@@ -8,7 +8,7 @@ Il motivo per cui è stato scelto di usare oggetti di tipo `io.vertx.core.json.J
 
 Quanto mostrato a seguire, riporta una parte del codice del filtro JAX-RS `TraceJaxRsRequestResponseFilter` opportunamente modificato per preparare il messaggio JSON (vedi riga 27 `JsonObject prepareMessage(ContainerRequestContext requestContext)`) da pubblicare poi sull'Event Bus (vedi riga 11 `eventBus.publish(httpRequestVirtualAddress, prepareMessage(requestContext))`).
 
-[source,java]
+[source,java,title="*Code 5* - Modifiche al filtro JAX-RS `TraceJaxRsRequestResponseFilter` per preparare il messaggio e pubblicarlo sull'Event Bus"]
 ....
 ...
 	  if (requestUriIsFiltered(requestUri)) {
@@ -60,7 +60,6 @@ Quanto mostrato a seguire, riporta una parte del codice del filtro JAX-RS `Trace
   }
 ...
 ....
-*Code 5* - Modifiche al filtro JAX-RS `TraceJaxRsRequestResponseFilter` per preparare il messaggio e pubblicarlo sull'Event Bus
 
 A questo punto abbiamo completato l'implementazione dei componenti richiesti affinché il sequence diagram mostrato in diagramma 4 sia soddisfatto. Possiamo eseguire un test per verificare che quanto sviluppato fino a questo momento funzioni utilizzando due metodi:
 
@@ -69,11 +68,9 @@ A questo punto abbiamo completato l'implementazione dei componenti richiesti aff
 
 La figura a seguire e il JSON mostrato successivame (console 10), rappresentano il messaggio pubblicato sull'Event Bus e consumato dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
-image::test_pubblicazione_consumazione_messaggi_curl.jpg[test_pubblicazione_consumazione_messaggi_curl]
+image::test_pubblicazione_consumazione_messaggi_curl.jpg[title="*Figura 5* - Test della generazione dei messaggi e pubblicazione"]
 
-*Figura 5* - Test della generazione dei messaggi e pubblicazione
-
-[source, shell]
+[source, shell, title="*Console 10* - Esempio dei messaggi di request e response pubblicati sull'Event Bus e consumati da HttpRequestConsumer e HttpResponseConsumer"]
 ....
 // Messaggio in formato JSON generato dal filtro JAX-RS sulla catena di request
 // e successivamente pubblicato sull'Event Bus verso il virtual address configurato
@@ -122,4 +119,3 @@ image::test_pubblicazione_consumazione_messaggi_curl.jpg[test_pubblicazione_cons
     "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}"
 }
 ....
-*Console 10* - Esempio dei messaggi di request e response pubblicati sull'Event Bus e consumati da HttpRequestConsumer e HttpResponseConsumer

@@ -6,7 +6,7 @@ Prenderemo in esame solamente la registrazione di un solo consumer perché il pr
 
 <<<
 
-[source,java]
+[source,java, title="*Code 4* - Implementazione del consumer HttpRequestConsumer e registrazione sull'Event Bus"]
 ....
 package it.dontesta.eventbus.consumers.http;
 
@@ -46,7 +46,6 @@ public class HttpRequestConsumer {
   }
 }
 ....
-*Code 4* - Implementazione del consumer HttpRequestConsumer e registrazione sull'Event Bus
 
 <<<
 
@@ -67,12 +66,13 @@ Il metodo `handleEvent()` al momento contiene solamente un'istruzione di log all
 
 Avviando l'applicazione con il comando `quarkus dev` o `mvn clean quarkus:dev` dovreste vedere i log evidenziati in figura 4 che riguardano in particolare la registrazione dei due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
-image::avvio_applicazione_log_registrazione_consumer.jpg[avvio_applicazione_log_registrazione_consumer]
-*Figura 4* - Avvio dell'applicazione Quarkus con evidenza dei log di registrazione dei consumer.
+image::avvio_applicazione_log_registrazione_consumer.jpg[title="*Figura 4* - Avvio dell'applicazione Quarkus con evidenza dei log di registrazione dei consumer"]
+
+<<<
 
 Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in console il comando `mvn test -Dtest=PublishMessageOnEventBusTest#testPublishMessageOnEventBus`. Dopo aver eseguito il comando, in console saranno mostrati i messagi pubblicati sull'Event Bus (dallo unit test) e ricevuti dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
-[source,shell]
+[source,shell, title="*Console 9* - Log di pubblicazione messaggio sull'Event Bus e consumazione da parte dei consumer"]
 ....
 [INFO] ....................................................---
 [INFO]  T E S T S
@@ -99,6 +99,5 @@ Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in conso
 [INFO] Finished at: 2024-04-11T16:59:37+02:00
 [INFO] ........................................................................
 ....
-*Console 9* - Log di pubblicazione messaggio sull'Event Bus e consumazione da parte dei consumer
 
 <<<

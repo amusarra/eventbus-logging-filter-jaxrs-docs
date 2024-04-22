@@ -10,7 +10,7 @@ L'estensione OpenShift è in realtà un'estensione wrapper che configura l'esten
 
 Per aggiungere la dipendenza `quarkus-openshift` al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
 
-[source,shell]
+[source,shell,title="*Console 20* - Installazione estensione OpenShift di Quarkus tramite CLI o Maven"]
 ....
 # Aggiungere la dipendenza per il deploy su OpenShift
 # tramite la CLI di Quarkus
@@ -21,11 +21,10 @@ quarkus extension add quarkus-openshift
 # tramite il comando Maven
 mvn quarkus:add-extension -Dextensions='quarkus-openshift'
 ....
-*Console 20* - Installazione estensione OpenShift di Quarkus tramite CLI o Maven
 
 Per quanto riguarda la configurazione del plugin `quarkus-openshift` tramite il file di configurazione `application.properties` dell'applicazione Quarkus, al momento inseriremo solo la configurazione che ci permetterà di https://quarkus.io/guides/deploying-to-openshift#exposing_routes[esporre l'applicazione all'esterno del cluster OpenShift]. A seguire la configurazione da inserire nel file `application.properties`.
 
-[source,properties]
+[source,properties,title="*Configurazione 6* - Configurazione per esporre l'applicazione all'esterno del cluster OpenShift"]
 ....
 # If true, the service will be exposed outside of the cluster
 # and will be assigned a route.
@@ -33,16 +32,16 @@ Per quanto riguarda la configurazione del plugin `quarkus-openshift` tramite il 
 # Environment variable: QUARKUS_OPENSHIFT_ROUTE_EXPOSE
 quarkus.openshift.route.expose=true
 ....
-*Configurazione 6* - Configurazione per esporre l'applicazione all'esterno del cluster OpenShift
 
 Per impostazione prendefinita l'esposizione all'esterno è configurata utilizzando il protocollo HTTP. Per abilitare il HTTPS, sarà necessario configurare il plugin `quarkus-openshift` con le informazioni relative al certificato e alla chiave privata.
 
 È opportuno avere una visione d'insieme delle risorse OpenShift/Kubernetes che saranno conivolte nel processo di deploy e di cui il plugin `quarkus-openshift` genererà la descrizione in formato yaml ([underline]##ma solo di quelle riguardanti l'applicazione##). Quello mostrato a seguire è il diagramma delle risorse coinvolte nel deploy dell'applicazione Quarkus su OpenShift.
 
-image::architettura_k8s_applicazione_1.jpg[architettura_k8s_applicazione_1]
-*Figura 6* - Architettura delle risorse coinvolte nel deploy dell'applicazione Quarkus su OpenShift
+image::architettura_k8s_applicazione_1.jpg[title="*Figura 6* - Architettura delle risorse coinvolte nel deploy dell'applicazione Quarkus su OpenShift"]
 
 Il diagramma è rappresentato da un Deployment che contiene il *Pod* (o i Pod) con il container dell'applicazione Quarkus, un *Service* per esporre il Pod (o i Pod) all'interno del cluster OpenShift e un *Route* (implementazione di OpenShift dell'Ingress) per esporre il Service all'esterno del cluster OpenShift. Inoltre, il diagramma mostra anche i servizi esterni come il database MongoDB e il broker AMQP che sono utilizzati dall'applicazione Quarkus.
+
+<<<
 
 Ricordiamo che all'interno di un cluster Kubernetes, i pod di ogni deployment comunicano tra loro attraverso il Service, e questo è importante ricordarlo al momento della configurazione dell'applicaizione Quarkus e in particolare delle connessioni ai servizi esterni come il database MongoDB e il broker AMQP.
 
@@ -62,7 +61,7 @@ Il motivo è che l'estensione OpenShift di Quarkus utilizza le specifiche MicroP
 
 Per aggiugere la dipendenza per le specifiche MicroProfile Health al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
 
-[source,shell]
+[source,shell,title="*Console 21* - Installazione estensione MicroProfile Health di Quarkus tramite CLI o Maven"]
 ....
 # Aggiungere la dipendenza per le specifiche MicroProfile Health
 # tramite la CLI di Quarkus
@@ -73,7 +72,8 @@ quarkus extension add smallrye-health
 # tramite il comando Maven
 mvn quarkus:add-extension -Dextensions='smallrye-health'
 ....
-*Console 21* - Installazione estensione MicroProfile Health di Quarkus tramite CLI o Maven
+
+<<<
 
 Importando l'estensione smallrye-health, Quarkus genererà automaticamente le probe di Liveness, Readiness e Started per l'applicazione. Queste probe saranno utilizzate dall'estensione OpenShift per determinare se l'applicazione è pronta per ricevere il traffico. Avviando quindi l'applicazione, avremo a disposizione le seguenti probe.
 
@@ -84,7 +84,7 @@ Importando l'estensione smallrye-health, Quarkus genererà automaticamente le pr
 
 Interrogando le probe di Liveness e Readiness (utilizzando il cURL), otterremo rispettivamente i seguenti output. Tutti gli endpoint delle probe restituiscono un semplice JSON con lo stato (`status`) complessivo dell'applicazione e delle eventuali verifiche effettuate (`checks`). Nel caso della nostra applicazione, le verifiche effettuate sono relative alla connessione al database MongoDB e alla connessione al broker AMQP (che in questo caso riporta lo stato dei due channel per la pubblicazioni dei messaggi di richiesta e risposta JAX-RS).
 
-[source,shell]
+[source,shell,title="*Console 22* - Interrogazione delle probe di Liveness e Readiness"]
 ....
 # Risposta della probe Liveness /q/health/live
 {

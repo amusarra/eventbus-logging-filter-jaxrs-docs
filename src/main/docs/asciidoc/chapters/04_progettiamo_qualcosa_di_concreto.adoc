@@ -4,7 +4,7 @@ Ipotizziamo che per la nostra applicazione Quarkus sia richiesta la capacità di
 
 Al fine di rendere più chiaro il requisito, a seguire è illustrato il diagramma che mostra come dovrà essere il flusso dell'applicazione, i componenti interessati e loro relazioni.
 
-[mermaid]
+[mermaid, title="*Diagramma 2* - Flusso dell'applicazione Quarkus per lo storage delle richieste JAX-RS"]
 ....
 graph TD
     A(User) -- HTTP Request --> E[Filtro JAX-RS];
@@ -33,12 +33,12 @@ class G garden
 class H white
 class I,L,M beach
 ....
-*Diagramma 2* - Flusso dell'applicazione Quarkus per lo storage delle richieste JAX-RS
 
 Stando al Diagramma 2, le richieste HTTP (verso i servizi REST) provenienti per esempio da utenti, dispositivi mobili, browser web o qualunque altro tipo di client, sono intercettate ed elaborate dal https://jakarta.ee/specifications/restful-ws/3.1/jakarta-restful-ws-spec-3.1.html#filters[filtro JAX-RS] e successivamente pubblicate sull'Event Bus. I Consumer ricevono gli eventi per cui hanno la sottoscrizione, inviandoli poi, a seconda della configurazione e delle esigenze dell'applicazione, verso il Database SQL, Database NoSQL e la coda AMQP.
 
 Ricordiamo che il filtro JAX-RS oltre a processare la request, processerà anche la response, motivo per cui gli eventi pubblicati sull'Event Bus saranno sia per la request sia per la response, di conseguenza ci saranno i rispettivi consumer. Il diagramma di sequenza a seguire aiuterà a capire meglio il ruolo del filtro JAX-RS.
-[mermaid]
+
+[mermaid, title="*Diagramma 3* - Sequenza che illustra il flusso di dati attraverso un filtro JAX-RS all'interno dell'applicazione quando viene effettuata una richiesta da un client"]
 ....
 sequenceDiagram
     autonumber
@@ -54,7 +54,6 @@ sequenceDiagram
  Filter JAX-RS-->>Application: Risposta dal filtro
  Application-->>Client: Invio della risposta
 ....
-*Diagramma 3* - Sequenza che illustra il flusso di dati attraverso un filtro JAX-RS all'interno dell'applicazione quando viene effettuata una richiesta da un client
 
 Il diagramma di sequenza precedente mostra il flusso di dati attraverso un filtro JAX-RS all'interno dell'applicazione quando viene effettuata una richiesta da un client.
 
@@ -67,7 +66,7 @@ Il diagramma di sequenza precedente mostra il flusso di dati attraverso un filtr
 
 Il diagramma di sequenza a seguire aggiunge l'Event Bus e su questo sono pubblicati dal filtro JAX-RS i messaggi di richiesta e i messaggi di risposta (vedi step 4 e step 8) del servizio JAX-RS chiamato.
 
-[mermaid]
+[mermaid, title="*Diagramma 4* - Estensione del diagramma precendente con l'aggiunta delle interazioni con l'Event Bus"]
 ....
 sequenceDiagram
     autonumber
@@ -88,11 +87,10 @@ sequenceDiagram
  Filter JAX-RS-->>Application: Risposta dal filtro
  Application-->>Client: Invio della risposta
 ....
-*Diagramma 4* - Estensione del diagramma precendente con l'aggiunta delle interazioni con l'Event Bus
 
 Quando i messaggi arrivano sul consumer, questi saranno elaborati dallo stesso e successivamente inviati al *Dispatcher* che sarà responsabile di veicolare il messaggio verso il corretto gestore (*Event Handler*) e quest'ultimo sarà l'effettivo responsabile dello store sul database SQL, NoSQL o sulla coda AMQP.
 
-[mermaid]
+[mermaid, title="*Diagramma 5* - Utilizzo del Dispatcher per veicolare la richiesta di store delle richieste/risponste JAX-RS verso il sistema configurato."]
 ....
 sequenceDiagram
     autonumber
@@ -116,6 +114,5 @@ else Event Handler AMQP enabled
   ehqueue-)Dispatcher: Notifica l'elaborazione
 end
 ....
-*Diagramma 5* - Utilizzo del Dispatcher per veicolare la richiesta di store delle richieste/risponste JAX-RS verso il sistema configurato.
 
 Il blocco _alt (abbreviazione di "alternative")_ del diagramma di sequenza precedente mostra come il Dispatcher inoltra l'evento all'Event Handler SQL, NoSQL o AMQP in base alla configurazione dell'applicazione. Nel diagramma di flusso precedente (diagramma 2), il Dispatcher è rappresentato dall'https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation[Inclusive Gateway (notazione BPMN)].  Le operazioni del blocco alt sono asincrone, per cui l'ordine l'ordine di esecuzione delle operazioni non è garantito. Una volta che l'Event Handler ha elaborato l'evento, notifica il Dispatcher dell'esito dell'operazione.

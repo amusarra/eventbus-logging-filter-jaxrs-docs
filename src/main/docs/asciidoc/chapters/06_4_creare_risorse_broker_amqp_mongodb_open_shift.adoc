@@ -2,7 +2,7 @@
 
 Iniziamo creando il broker AMQP partendo dall'immagine https://hub.docker.com/r/apache/activemq-artemis[Docker di Apache ActiveMQ Artemis]. Per fare ciò è sufficiente utilizzare il comando `oc new-app` specificando l'immagine Docker di Apache ActiveMQ Artemis.
 
-[source,shell]
+[source,shell,title="*Console 27* - Creazione del broker AMQP Apache ActiveMQ Artemis su OpenShift partendo dall'immagine Docker"]
 ....
 # Creazione del broker AMQP Apache ActiveMQ Artemis
 oc new-app apache/activemq-artemis:2.33.0
@@ -21,11 +21,10 @@ oc new-app apache/activemq-artemis:2.33.0
      'oc expose service/activemq-artemis'
     Run 'oc status' to view your app.
 ....
-*Console 27* - Creazione del broker AMQP Apache ActiveMQ Artemis su OpenShift partendo dall'immagine Docker
 
 Se tutto è andato per il verso giusto, dovreste ottenere un output simile a quello a seguire che indica il pod dell'Apache ActiveMQ Artemis in stato `Running` e il servizio `activemq-artemis` attivo con in evidenza le porte in binding. A seguire l'output del comando `oc get pods` e `oc get services`.
 
-[source,shell]
+[source,shell,title="*Console 28* - Output del comando `oc get pods` e `oc get services` per verificare la creazione delle risorse per AMQP"]
 ....
 NAME                                        READY   STATUS       RESTARTS   AGE
 pod/activemq-artemis-f9584d88c-pgf68        1/1     Running      0          45m
@@ -33,13 +32,12 @@ pod/activemq-artemis-f9584d88c-pgf68        1/1     Running      0          45m
 NAME                                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)       AGE
 service/activemq-artemis                ClusterIP   172.30.35.104   <none>        1883/TCP,..   45m
 ....
-*Console 28* - Output del comando `oc get pods` e `oc get services` per verificare la creazione delle risorse per AMQP
 
 Adesso passiamo alla creazione delle risorse per il database NoSQL MongoDB. Per fare ciò è sufficiente utilizzare il comando `oc new-app` specificando l'immagine https://hub.docker.com/_/mongo[Docker di MongoDB].
 
 <<<
 
-[source,shell]
+[source,shell,title="*Console 29* - Creazione del database NoSQL MongoDB su OpenShift partendo dall'immagine Docker"]
 ....
 # Creazione di MongoDB
 oc new-app mongo:7.0.8
@@ -56,11 +54,10 @@ oc new-app mongo:7.0.8
      'oc expose service/mongo'
     Run 'oc status' to view your app.
 ....
-*Console 29* - Output del comando `oc new-app` per la creazione delle risorse per MongoDB
 
 Per verificare che le risorse per il database NoSQL MongoDB siano state create correttamente, è possibile utilizzare il comando `oc get pods` e `oc get services` che restituiranno l'output mostrato a seguire.
 
-[source,shell]
+[source,shell,title="*Console 30* - Output del comando `oc get pods` e `oc get services` per verificare la creazione delle risorse per MongoDB"]
 ....
 NAME                                                 READY   STATUS    RESTARTS   AGE
 pod/mongo-dc76d7f8d-p7dv7                            1/1     Running   0          9m40s
@@ -68,7 +65,6 @@ pod/mongo-dc76d7f8d-p7dv7                            1/1     Running   0        
 NAME                                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 service/mongo                           ClusterIP   172.30.248.66   <none>        27017/TCP  9m40s
 ....
-*Console 30* - Output del comando `oc get pods` e `oc get services` per verificare la creazione delle risorse per MongoDB
 
 Abbiamo creato con successo le risorse per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB sul cluster OpenShift. Ora è necessario configurare l'applicazione Quarkus per connettersi a queste risorse e quindi essere pronta per ricevere il traffico.
 
