@@ -36,15 +36,6 @@
         <jruby.version>9.4.6.0</jruby.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <defaultGoal>process-resources</defaultGoal>
         <plugins>
