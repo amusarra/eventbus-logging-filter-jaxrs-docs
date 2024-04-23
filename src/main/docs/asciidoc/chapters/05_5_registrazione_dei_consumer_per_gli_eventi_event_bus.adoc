@@ -2,7 +2,7 @@
 
 In questo quinto step, il tag di riferimento è https://github.com/amusarra/eventbus-logging-filter-jaxrs/tree/step-5.3[step-5.3]. Una volta definiti gli indirizzi virtuali per la nostra applicazione Quarkus, vediamo come implementare la registrazione dei consumer e il metodo da utilizzare per realizzare la logica di elaborazione del messaggio ricevuto dal consumer stesso.
 
-Prenderemo in esame solamente la registrazione di un solo consumer perché il processo resta invariato anche per il resto dei consumer. Il consumer in questione è quello che sarà sottoscritto all'indirizzo virtuale `http-request`. A seguire il codice del consumer `HttpRequestConsumer`.
+Prenderemo in esame la registrazione di un solo consumer perché il processo resta invariato anche per il resto dei consumer. Il consumer in questione è quello che sarà sottoscritto all'indirizzo virtuale `http-request`. A seguire il codice del consumer `HttpRequestConsumer`.
 
 <<<
 

@@ -223,7 +223,7 @@ public class TraceJaxRsRequestResponseFilter implements ContainerRequestFilter,
 }
 ....
 
-Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), siamo nelle condizioni di poter eseguire un test. Guardando con attenzione l'implemetazione attuale, quali sono i punti salienti?
+Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), siamo nelle condizioni di poter eseguire un test. Guardando con attenzione l'implementazione attuale, quali sono i punti salienti?
 
 . Il filtro è influenzato da due parametri di configurazione.
 .. Il parametro `app.filter.enabled` consente di abilitare o disabilitare il processo di elaborazione delle richieste e risposte.

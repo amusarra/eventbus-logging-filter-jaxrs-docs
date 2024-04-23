@@ -211,7 +211,7 @@ http://localhost:8080/api/rest/echo
 * Connection #0 to host localhost left intact
 ....
 
-Se ricordate, l'implemetazione del servizio fa uso delle Validation Bean API (vedi code 2) e in particolare per il parametro di input, cui è richiesta  una dimensione tra 32 byte e 4096 byte. Nel caso in cui il parametro di input non dovesse rispettare questa regola, il servizio risponderà con un codice HTTP/400 (o Bad Request) e un JSON con il dettaglio dell'errore, così come indicato a seguire.
+Se ricordate, l'implementazione del servizio fa uso delle Validation Bean API (vedi code 2) e in particolare per il parametro di input, cui è richiesta  una dimensione tra 32 byte e 4096 byte. Nel caso in cui il parametro di input non dovesse rispettare questa regola, il servizio risponderà con un codice HTTP/400 (o Bad Request) e un JSON con il dettaglio dell'errore, così come indicato a seguire.
 
 <<<
 
