@@ -26,4 +26,4 @@ jobs:
 
       - name: Convert AsciiDoc to PDF
         run: |
-          mvn asciidoctor:process-asciidoc@pdf
+          mvn clean asciidoctor:process-asciidoc@asciidoc-to-pdf
