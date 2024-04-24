@@ -28,6 +28,6 @@ jobs:
           # asciidoctor_params: --attribute=nofooter
           # adoc_file_ext: .ascii # default is .adoc
           source_dir: src/main/docs/asciidoc/ # default is .
-          slides_build: true
+          slides_build: false
           # pre_build:
           # post_build:
