@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: 'generated-html5.tar'
+          path: './target/generated-html5'
 
       - name: Deploy to GitHub Pages
         id: deployment
