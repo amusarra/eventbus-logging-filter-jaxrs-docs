@@ -50,12 +50,9 @@ jobs:
       - name: Verify Mermaid CLI installation
         run: mmdc --version
 
-      - name: Build with Maven
-        run: mvn clean package
-
-      - name: Convert AsciiDoc to PDF
+      - name: Convert AsciiDoc to HTML5
         run: |
-          mvn clean asciidoctor:process-asciidoc@asciidoc-to-pdf
+          mvn clean asciidoctor:process-asciidoc@asciidoc-to-html
 
       - name: Compress directory
         run: tar -cvf generated-html5.tar .target/generated-html5
