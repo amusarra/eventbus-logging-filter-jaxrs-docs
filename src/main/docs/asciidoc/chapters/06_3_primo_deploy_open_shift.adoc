@@ -18,13 +18,13 @@ oc login --token=<tuo-token> --server=<tuo-cluster>
 
 Per ottenere il token di accesso al cluster OpenShift fornito dalla Developer Sandbox di Red Hat, è necessario accedere alla Developer Sandbox di Red Hat e cliccare sul pulsante `Copy Login Command` per copiare il comando di login che contiene il token di accesso al cluster OpenShift. A seguire un esempio di comando di login con token.
 
-image::come_ottenere_login_url_1.jpg[title="Come ottenere il comando di login con token"]
+image::come_ottenere_login_url_1.jpg[title="*Figura 7* - Come ottenere il comando di login con token"]
 
-image::come_ottenere_login_url_2.jpg[title="Pagina che mostra il Token API e il comando di login tramite OC e cURL"]
+image::come_ottenere_login_url_2.jpg[title="*Figura 8* - Pagina che mostra il Token API e il comando di login tramite OC e cURL"]
 
 Se il login è andato a buon fine dovreste vedere un messaggio simile a quello mostrato a seguire, dov'è indicato il nome del cluster OpenShift, l'utente con cui avete effettuato il login e il progetto di default in cui siete loggati.
 
-image::come_ottenere_login_url_3.jpg[title="*Figura 7* - Messaggio di login completato con successo"]
+image::come_ottenere_login_url_3.jpg[title="*Figura 8* - Messaggio di login completato con successo"]
 
 Dopo aver effettuato il login sul cluster OpenShift, è possibile procedere con il processo di build e deploy dell'applicazione Quarkus su OpenShift. Per fare ciò, è necessario eseguire il comando `mvn clean package -Dquarkus.openshift.deploy=true` che effettuerà la build dell'applicazione Quarkus e il deploy su OpenShift. A seguire un esempio di output (parziale) del comando di build e deploy che mostra il buon esito dell'operazione.
 
@@ -79,13 +79,13 @@ Date: Sun, 14 Apr 2024 13:46:49 GMT
 Connection: close
 ....
 
-image::deploy_openshift_prima_volta_1.jpg[title="*Figura 8* - Messaggio di errore HTTP/503 mostrato dal browser per l'applicazione Quarkus non pronta"]
+image::deploy_openshift_prima_volta_1.jpg[title="*Figura 9* - Messaggio di errore HTTP/503 mostrato dal browser per l'applicazione Quarkus non pronta"]
 
 È probabile che molti di voi abbiano già intuito il motivo dell'indisponibilità dell'applicazione ma cerchiamo in ogni caso di capire il motivo di questa indisponibilità utilizzando la CLI di OpenShift e il modo di risolvere il problema. In questi casi la prima azione da compiere che potrebbe senza dubbio dare l'indicazione di ciò che sia andato storto, è la verifica degli eventi che sono accaduti durante il deploy dell'applicazione. Per fare ciò, è necessario eseguire il comando `oc get events` che restituirà l'elenco degli eventi accaduti durante il deploy. A seguire l'output del comando `oc get events`.
 
 Le informazioni riportate dal comando `oc get events` mostrano che l'applicazione non è pronta per ricevere il traffico (`Startup probe failed: HTTP probe failed with statuscode: 503`). Questo accade perché l'applicazione non ha superato le probe di Startup; tra le altre cose il pod è stato uccisso e riavviato più volte (`Back-off restarting failed container`).
 
-image::deploy_openshift_prima_volta_2.jpg[title="*Figura 9* - Output del comando `oc get events` per verificare il motivo per l'applicazione sia non pronta"]
+image::deploy_openshift_prima_volta_2.jpg[title="*Figura 10* - Output del comando `oc get events` per verificare il motivo per l'applicazione sia non pronta"]
 
 Visto che il problema è sul pod dell'applicazione, è necessario verificare il motivo per cui l'applicazione non è pronta per ricevere il traffico. In questo caso possiamo andare a vedere direttamente il log del pod dell'applicazione per capire il motivo per cui l'applicazione non è pronta per ricevere il traffico. Per fare ciò, è necessario eseguire il comando `oc logs <pod-name>` che restituirà il log del pod dell'applicazione.
 
