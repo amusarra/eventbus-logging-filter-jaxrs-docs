@@ -54,12 +54,6 @@ jobs:
         run: |
           mvn clean asciidoctor:process-asciidoc@asciidoc-to-html
 
-      - name: Compress directory
-        run: |
-          tree target/generated-html5 &&
-          tar -cvf generated-html5.tar target/generated-html5 &&
-          ls -l generated-html5.tar
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
