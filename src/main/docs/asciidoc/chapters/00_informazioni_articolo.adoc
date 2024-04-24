@@ -1,5 +1,5 @@
 [colophon]
-= Informazioni su l'articolo
+= Informazioni sulla Guida
 
 **Antonio Musarra**, Sfruttare al massimo l'Event Bus di Quarkus: Utilizzi e Vantaggi
 
