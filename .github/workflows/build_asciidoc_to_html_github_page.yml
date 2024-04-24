@@ -39,12 +39,26 @@ jobs:
           distribution: 'corretto'
           cache: maven
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'  # Puoi scegliere la versione di Node.js desiderata
+
+      - name: Install Mermaid CLI
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Verify Mermaid CLI installation
+        run: mmdc --version
+
       - name: Build with Maven
         run: mvn clean package
 
       - name: Convert AsciiDoc to PDF
         run: |
           mvn clean asciidoctor:process-asciidoc@asciidoc-to-pdf
+
+      - name: Compress directory
+        run: tar -cvf generated-html5.tar .target/generated-html5
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -53,7 +67,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: './target/generated-html5'
+          path: 'generated-html5.tar'
 
       - name: Deploy to GitHub Pages
         id: deployment
