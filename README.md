@@ -72,5 +72,5 @@ Il comando Maven eseguirà la compilazione del progetto e la generazione della d
 HTML sarà disponibile nella cartella `target/generated-html5` del progetto.
 
 ## Pubblicazione della documentazione HTML su GitHub Pages
-La documentazione HTML generata è disponibile anche su [GitHub Pages](https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/). Questo è possibile grazie alla GitHub Actions [Deploy AsciiDocs to Pages](.github/workflows/build_asciidoc_to_html_github_page.yml)
-che si occupa di pubblicare la documentazione HTML generata (tramite il plugin Maven di AsciiDocs) su GitHub Pages.
+La documentazione HTML generata è disponibile anche su [GitHub Pages](https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/). Questo è possibile grazie alla GitHub Actions [Deploy AsciiDoc to Pages](.github/workflows/build_asciidoc_to_html_github_page.yml)
+che si occupa di pubblicare la documentazione HTML generata (tramite il plugin Maven di AsciiDoc) su GitHub Pages.
