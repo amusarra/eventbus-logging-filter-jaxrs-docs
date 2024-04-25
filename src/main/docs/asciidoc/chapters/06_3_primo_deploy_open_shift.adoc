@@ -83,7 +83,7 @@ image::deploy_openshift_prima_volta_1.jpg[title="*Figura 9* - Messaggio di error
 
 È probabile che molti di voi abbiano già intuito il motivo dell'indisponibilità dell'applicazione ma cerchiamo in ogni caso di capire il motivo di questa indisponibilità utilizzando la CLI di OpenShift e il modo di risolvere il problema. In questi casi la prima azione da compiere che potrebbe senza dubbio dare l'indicazione di ciò che sia andato storto, è la verifica degli eventi che sono accaduti durante il deploy dell'applicazione. Per fare ciò, è necessario eseguire il comando `oc get events` che restituirà l'elenco degli eventi accaduti durante il deploy. A seguire l'output del comando `oc get events`.
 
-Le informazioni riportate dal comando `oc get events` mostrano che l'applicazione non è pronta per ricevere il traffico (`Startup probe failed: HTTP probe failed with statuscode: 503`). Questo accade perché l'applicazione non ha superato le probe di Startup; tra le altre cose il pod è stato uccisso e riavviato più volte (`Back-off restarting failed container`).
+Le informazioni riportate dal comando `oc get events` mostrano che l'applicazione non è pronta per ricevere il traffico (`Startup probe failed: HTTP probe failed with statuscode: 503`). Questo accade perché l'applicazione non ha superato le probe di Startup; tra le altre cose il pod è stato ucciso e riavviato più volte (`Back-off restarting failed container`).
 
 image::deploy_openshift_prima_volta_2.jpg[title="*Figura 10* - Output del comando `oc get events` per verificare il motivo per l'applicazione sia non pronta"]
 
@@ -116,7 +116,7 @@ Caused by: java.net.ConnectException: Connection refused
 
 Dopo questa breve analisi le idee dovrebbero essere più chiare. Se ricordate bene, l'applicazione ha delle dipendenze esterne, verso il database NoSQL MongoDB e verso il broker AMQP Apache ActiveMQ Artemis. Fino a quando siamo stati nella fase di sviluppo dell'applicazione, queste dipendenze non ci hanno dato problemi perché eravamo in un ambiente controllato e locale e per di più abbiamo fatto uso dei Dev Services di Quarkus che hanno reso trasparente per noi l'uso di queste dipendenze.
 
-Passando all'ambiente di "produzione" o comuque diverso dal nostro ambiente di sviluppo locale, le cose sono cambiate, queste dipendenze non sono più disponibili e il plugin `quarkus-openshift` non crea i descrittori necessari per creare tutte le risorse indispensabili per tirare su le dipendenze sull'ambiente di deploy OpenShift.
+Passando all'ambiente di "produzione" o comunque diverso dal nostro ambiente di sviluppo locale, le cose sono cambiate, queste dipendenze non sono più disponibili e il plugin `quarkus-openshift` non crea i descrittori necessari per creare tutte le risorse indispensabili per tirare su le dipendenze sull'ambiente di deploy OpenShift.
 
 Se andassimo a vedere il contenuto del file `target/kubernetes/openshift.yml` , all'interno non troveremmo nessuna risorsa per il broker AMQP Apache ActiveMQ Artemis e per il database NoSQL MongoDB. Questo è il motivo per cui l'applicazione non è pronta per ricevere il traffico, poiché non riesce a connettersi al broker AMQP Apache ActiveMQ Artemis e quindi non è pronta per ricevere il traffico.
 

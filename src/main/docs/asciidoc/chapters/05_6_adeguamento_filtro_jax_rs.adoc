@@ -66,7 +66,7 @@ A questo punto abbiamo completato l'implementazione dei componenti richiesti aff
 . il primo consiste nell'avviare l'applicazione e fare una richiesta cURL verso l'endpoint  `/api/rest/echo` verificando sui log che in messaggi pubblicati sull'Event Bus siano consumanti dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`;
 . il secondo test consiste nell'esecuzione degli unit test utilizzando il comando `quarkus test` o `mvn test`.
 
-La figura a seguire e il JSON mostrato successivame (console 10), rappresentano il messaggio pubblicato sull'Event Bus e consumato dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
+La figura a seguire e il JSON mostrato successivamente (console 10), rappresentano il messaggio pubblicato sull'Event Bus e consumato dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
 image::test_pubblicazione_consumazione_messaggi_curl.jpg[title="*Figura 5* - Test della generazione dei messaggi e pubblicazione"]
 

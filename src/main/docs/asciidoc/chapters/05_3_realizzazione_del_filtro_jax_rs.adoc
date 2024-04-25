@@ -26,10 +26,10 @@ Se avete visto il diagramma della _Processing Pipeline_, il nostro interesse è 
 [mermaid, title="*Diagramma 6* - Punti di estensione del filtro e dell'interceptor lato server"]
 ....
 graph LR
-  methodInvocke[Method Invocation]
+  methodInvoke[Method Invocation]
 
 subgraph reqFlow[Request Flow]
-    req([Request]) --> pContReq[Prematch Container Request]
+    req([Request]) --> pContReq[Pre-match Container Request]
     pContReq --> reqMatching[Request Matching]
     reqMatching --> contReq[Container Request]
     contReq --> readInt[Read Interceptor]
@@ -40,8 +40,8 @@ subgraph respFlow[Response Flow]
     writeInt --> resp([Response])
   end
 
-reqFlow --> methodInvocke
-  methodInvocke --> respFlow
+reqFlow --> methodInvoke
+  methodInvoke --> respFlow
 
 classDef reqFlowStyleClass fill:#f9f,stroke:#333,stroke-width:2px;
   classDef respFlowStyleClass fill:#f9f,stroke:#333,stroke-width:2px;
@@ -232,7 +232,7 @@ Adesso che abbiamo implementato il filtro JAX-RS (anche se completo in parte), s
 
 <<<
 
-A seguire è possibile vedere i parametri di configurazione menzionati in precedenza e i rispettivi valori. In particolare il parametro  `app.filter.uris` è difatto un array che al momento contiene un solo elemento.
+A seguire è possibile vedere i parametri di configurazione menzionati in precedenza e i rispettivi valori. In particolare il parametro  `app.filter.uris` è difatti un array che al momento contiene un solo elemento.
 
 [source,properties, title="*Configurazione 2* - Contenuto del file di configurazione application.properties"]
 ....

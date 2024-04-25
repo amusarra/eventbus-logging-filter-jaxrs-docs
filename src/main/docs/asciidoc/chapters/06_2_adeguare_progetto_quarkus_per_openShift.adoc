@@ -51,7 +51,7 @@ Ricordiamo che all'interno di un cluster Kubernetes, i pod di ogni deployment co
 ====
 
 
-*Perché dobbiamo aggiugere il supporto per le specifiche https://github.com/eclipse/microprofile-health/[MicroProfile Health]?*
+*Perché dobbiamo aggiungere il supporto per le specifiche https://github.com/eclipse/microprofile-health/[MicroProfile Health]?*
 
 Il motivo è che l'estensione OpenShift di Quarkus utilizza le specifiche MicroProfile Health per verificare lo stato dell'applicazione e per determinare se l'applicazione è pronta per ricevere il traffico. Questa estensione la cui implementazione è fornita da https://github.com/smallrye/smallrye-health/[SmallRye Health] è un componente fondamentale per ottenere gratuitamente e sviluppare le probe di Liveness, Readiness e Startup Probe, concetti essenziali per le applicazioni cloud native, in particolare quando occorre orchestrare e gestire i container all'interno di un'infrastruttura come Kubernetes. Ecco un'analisi più dettagliata dell'importanza di ciascun tipo di probe.
 
@@ -59,7 +59,7 @@ Il motivo è che l'estensione OpenShift di Quarkus utilizza le specifiche MicroP
 . *Readiness Probe*: è un meccanismo per determinare se un'applicazione è pronta per ricevere il traffico. Se l'applicazione non è pronta, Kubernetes non invierà traffico all'applicazione. Questo è utile per evitare che un'applicazione non pronta riceva traffico.
 . *Startup Probe*: è un meccanismo per determinare se un'applicazione è stata avviata correttamente. Se l'applicazione non è stata avviata correttamente, Kubernetes la riavvierà. Questo è utile per evitare che un'applicazione non avviata correttamente riceva traffico.
 
-Per aggiugere la dipendenza per le specifiche MicroProfile Health al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
+Per aggiungere la dipendenza per le specifiche MicroProfile Health al progetto, è possibile utilizzare la CLI di Quarkus o Maven. A seguire il comando per aggiungere la dipendenza tramite la CLI di Quarkus o tramite Maven.
 
 [source,shell,title="*Console 21* - Installazione estensione MicroProfile Health di Quarkus tramite CLI o Maven"]
 ....

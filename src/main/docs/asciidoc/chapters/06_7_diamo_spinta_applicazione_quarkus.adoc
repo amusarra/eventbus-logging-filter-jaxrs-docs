@@ -69,7 +69,7 @@ Il flag usati nel comando `quarkus build` sono i seguenti:
 * il parametro `--no-tests` è stato utilizzato per evitare l'esecuzione dei test durante la build dell'applicazione Quarkus in modalità nativa con GraalVM;
 * il parametro `--native` è stato utilizzato per specificare che la build dell'applicazione Quarkus deve essere eseguita in modalità nativa con GraalVM;
 * il parametro `-Dquarkus.native.container-build=true` è stato utilizzato per specificare che la build dell'applicazione Quarkus deve essere eseguita all'interno di un container;
-* il parametro `-Dquarkus.native.builder-image.pull=never` è stato utilizzato per specificare che l'[underline]##immagine di Mandrel Builder non deve essere scaricata perché scaricata in precendenza con il comando## `podman pull`; Non specificando questo parametro, il comando `quarkus build` cercherà di scaricare l'immagine di Mandrel Builder e prenderà quella per l'architettura corrente, che nel mio caso è aarch64 e non amd64, di conseguenza l'eseguibile prodotto sarebbe stato per l'architettura sbagliata;
+* il parametro `-Dquarkus.native.builder-image.pull=never` è stato utilizzato per specificare che l'[underline]##immagine di Mandrel Builder non deve essere scaricata perché scaricata in precedenza con il comando## `podman pull`; Non specificando questo parametro, il comando `quarkus build` cercherà di scaricare l'immagine di Mandrel Builder e prenderà quella per l'architettura corrente, che nel mio caso è aarch64 e non amd64, di conseguenza l'eseguibile prodotto sarebbe stato per l'architettura sbagliata;
 * Il parametro `-Dquarkus.openshift.deploy=true` è stato utilizzato per specificare che l'applicazione Quarkus deve essere deployata su OpenShift.
 
 

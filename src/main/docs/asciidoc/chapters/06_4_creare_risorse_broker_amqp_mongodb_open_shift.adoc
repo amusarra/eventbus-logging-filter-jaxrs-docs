@@ -70,7 +70,7 @@ Abbiamo creato con successo le risorse per il broker AMQP Apache ActiveMQ Artemi
 
 [IMPORTANT]
 ====
-*Nota*: per la creazione delle risorse abbiamo usato la via più semplice e immediata ma non quella consigliata per un ambiente di collaudo, validazione e produzione dove è necessario configurare le risorse in modo più dettagliato e sicuro, come per esempio attraverso l'uso di https://helm.sh/docs/topics/charts/[Helm Charts] o https://kubernetes.io/docs/concepts/extend-kubernetes/operator/[Operator] e all'interno di un progetto di https://www.redhat.com/en/topics/devops/what-is-gitops-workflow[GitOps].
+*Nota*: per la creazione delle risorse abbiamo usato la via più semplice e immediata ma non quella consigliata per un ambiente di collaudo, validazione e produzione dove è necessario configurare le risorse in modo più dettagliato e sicuro, come per esempio attraverso l'uso di https://helm.sh/docs/topics/charts/[Helm Charts] od https://kubernetes.io/docs/concepts/extend-kubernetes/operator/[Operator] e all'interno di un progetto di https://www.redhat.com/en/topics/devops/what-is-gitops-workflow[GitOps].
 ====
 
 <<<

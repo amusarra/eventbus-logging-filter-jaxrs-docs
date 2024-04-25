@@ -18,7 +18,7 @@ Dopo aver visto cosa voler realizzare sfruttando l'Event Bus di Quarkus e quali 
 | Questo componente è il consumer che si registrerà all'indirizzo virtuale dove saranno pubblicati i messaggi contenenti le informazioni che riguardano le risposte JAX-RS ricevute dall'applicazione e opportunamente filtrate. L'indirizzo virtuale sarà configurato sul file di configurazione dell'applicazione Quarkus.
 
 | Dispatcher
-| Così come indicato nel diagramma 5, questo componente sarà il risponsabile della gestione del flusso degli eventi verso gli Event Handler.
+| Così come indicato nel diagramma 5, questo componente sarà il responsabile della gestione del flusso degli eventi verso gli Event Handler.
 
 | Event Handlers
 | Quei componenti che sono sempre dei consumer, saranno responsabili della gestione degli eventi inoltrati dal Dispatcher e una volta elaborati inviati verso il sistema esterno (SQL, NoSQL e AMPQ). Così come indicato del diagramma 5, ogni Event Handler dovrà notificare l'esito dell'operazione.

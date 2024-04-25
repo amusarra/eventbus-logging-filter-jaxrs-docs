@@ -51,7 +51,7 @@ public class HttpRequestConsumer {
 
 Analizzando il codice del consumer, attraverso l'annotazione `@ConfigProperty` è letto il valore dell'indirizzo virtuale dalla proprietà di configurazione `app.eventbus.consumer.http.request.address`.
 
-Il metodo `onStart()` esegue la registrazione del consumer sull'Event Bus attraverso il metodo `eventBus.consumer()` specificando l'indirizzo virtuale e il metodo che sarà responsabile dell'elaborazione dei messaggi. La fase di registrazione avviene nel momento in cui si avvierà l'applicazione (vedi l'annotazione `@Obeserves` e per appronfondimenti https://quarkus.io/guides/lifecycle#listening-for-startup-and-shutdown-events[Listening for startup and shutdown events]).
+Il metodo `onStart()` esegue la registrazione del consumer sull'Event Bus attraverso il metodo `eventBus.consumer()` specificando l'indirizzo virtuale e il metodo che sarà responsabile dell'elaborazione dei messaggi. La fase di registrazione avviene nel momento in cui si avvierà l'applicazione (vedi l'annotazione `@Obeserves` e per approfondimenti https://quarkus.io/guides/lifecycle#listening-for-startup-and-shutdown-events[Listening for startup and shutdown events]).
 
 [IMPORTANT]
 ====
@@ -62,7 +62,7 @@ Il metodo `onStart()` esegue la registrazione del consumer sull'Event Bus attrav
 Il metodo `handleEvent()` al momento contiene solamente un'istruzione di log allo scopo di verificare che questo sia correttamente chiamato. Vedremo l'implementazione completa più avanti e nel frattempo eseguiamo un test allo scopo di verificare che:
 
 . allo start dell'applicazione il consumer venga correttamente registrato sull'Event Bus;
-. eseguendo lo unit test `PublishMessageOnEventBusTest#testPublishMessageOnEventBus` dovreste poter vedere se il messaggio sia pubblicato correttamente attraverso l'Event Bus e che questo sia consumato verificando che sia prensente in console il log indicato sul metodo `handleEvent()`.
+. eseguendo lo unit test `PublishMessageOnEventBusTest#testPublishMessageOnEventBus` dovreste poter vedere se il messaggio sia pubblicato correttamente attraverso l'Event Bus e che questo sia consumato verificando che sia presente in console il log indicato sul metodo `handleEvent()`.
 
 Avviando l'applicazione con il comando `quarkus dev` o `mvn clean quarkus:dev` dovreste vedere i log evidenziati in figura 4 che riguardano in particolare la registrazione dei due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
@@ -70,7 +70,7 @@ image::avvio_applicazione_log_registrazione_consumer.jpg[title="*Figura 4* - Avv
 
 <<<
 
-Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in console il comando `mvn test -Dtest=PublishMessageOnEventBusTest#testPublishMessageOnEventBus`. Dopo aver eseguito il comando, in console saranno mostrati i messagi pubblicati sull'Event Bus (dallo unit test) e ricevuti dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
+Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in console il comando `mvn test -Dtest=PublishMessageOnEventBusTest#testPublishMessageOnEventBus`. Dopo aver eseguito il comando, in console saranno mostrati i messaggi pubblicati sull'Event Bus (dallo unit test) e ricevuti dai due consumer `HttpRequestConsumer` e `HttpResponseConsumer`.
 
 [source,shell, title="*Console 9* - Log di pubblicazione messaggio sull'Event Bus e consumazione da parte dei consumer"]
 ....
