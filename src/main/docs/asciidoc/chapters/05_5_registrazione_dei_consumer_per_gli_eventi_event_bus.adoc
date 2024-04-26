@@ -74,9 +74,9 @@ Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in conso
 
 [source,shell, title="*Console 9* - Log di pubblicazione messaggio sull'Event Bus e consumazione da parte dei consumer"]
 ....
-[INFO] ....................................................---
+[INFO] -------------------------------------------------------
 [INFO]  T E S T S
-[INFO] ....................................................---
+[INFO] -------------------------------------------------------
 [INFO] Running it.dontesta.eventbus.publish.PublishMessageOnEventBusTest
 2024-04-11 16:59:36,872 DEBUG [it.don.eve.con.htt.HttpRequestConsumer] (main) Registering the consumers to the event bus for HTTP request at addresses: {http-request}
 2024-04-11 16:59:36,876 DEBUG [it.don.eve.con.htt.HttpResponseConsumer] (main) Registering the consumers to the event bus for HTTP response at addresses: {http-response}
@@ -92,12 +92,12 @@ Adesso passiamo alla seconda verifica descritta in precedenza eseguendo in conso
 [INFO]
 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 [INFO]
-[INFO] ........................................................................
+[INFO] -----------------------------------------------------------------------
 [INFO] BUILD SUCCESS
-[INFO] ........................................................................
+[INFO] -----------------------------------------------------------------------
 [INFO] Total time:  4.389 s
 [INFO] Finished at: 2024-04-11T16:59:37+02:00
-[INFO] ........................................................................
+[INFO] -----------------------------------------------------------------------
 ....
 
 <<<

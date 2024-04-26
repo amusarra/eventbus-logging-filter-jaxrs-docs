@@ -51,12 +51,12 @@ Ricordo che, è sempre possibile monitorare l'operazione di build e deploy dell'
 [INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] Applied: Route eventbus-logging-filter-jaxrs.
 [INFO] [io.quarkus.kubernetes.deployment.KubernetesDeployer] The deployed application can be accessed at: http://eventbus-logging-filter-jaxrs-antonio-musarra-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com
 [INFO] [io.quarkus.deployment.QuarkusAugmentor] Quarkus augmentation completed in 235171ms
-[INFO] ........................................................................
+[INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
-[INFO] ........................................................................
+[INFO] ------------------------------------------------------------------------
 [INFO] Total time:  04:08 min
 [INFO] Finished at: 2024-04-14T15:10:46+02:00
-[INFO] ........................................................................
+[INFO] ------------------------------------------------------------------------
 ....
 
 L'operazione di build e in particolare quella di deploy potrebbe durare diversi minuti perché il plugin `quarkus-openshift` deve eseguire diverse operazioni sul cluster, tra cui la creazione di un certo numero di risorse quali: `Deployment`, `Pods`, `Service`, `Route`,  `ConfigMap`,`Secret` oltre a l'immagine dell'applicazione Quarkus che viene caricata sul registry del cluster OpenShift. Da tenere anche in considerazione che la Developer Sandbox di Red Hat è un ambiente condiviso e quindi la velocità di risposta potrebbe variare in base al carico di lavoro del cluster. Nel mio caso l'operazione di build e deploy è durata circa 4 minuti.
