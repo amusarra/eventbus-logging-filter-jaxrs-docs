@@ -18,7 +18,7 @@ Profilo LinkedIn https://www.linkedin.com/in/amusarra/
 Il progetto di esempio realizzato per quest'opera è disponibile su di un repository GitHub all'indirizzo https://github.com/amusarra/eventbus-logging-filter-jaxrs
 
 [.text-left]
-Quest'opera è stata realizzata usando l'approccio _doc-as-code_ e il testo è stato scritto in formato _AsciiDoc_. Il repository GitHub https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs contiene il progetto in formato Maven style da cui è possibile generare il PDF e l'ePUB di quest'opera.
+Quest'opera è stata realizzata usando l'approccio _doc-as-code_ e il testo è stato scritto in formato _AsciiDoc_. Il repository GitHub https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs contiene il progetto in formato Maven style da cui è possibile generare la documentazione in formato HTML e PDF di quest'opera.
 
 [.text-left]
 Nel caso di segnalazioni di errori, suggerimenti o richieste di chiarimenti, si prega di aprire una issue sul rispettivo repository GitHub.
