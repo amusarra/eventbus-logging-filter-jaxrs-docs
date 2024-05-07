@@ -24,7 +24,9 @@ Quest'opera è stata realizzata usando l'approccio _doc-as-code_ e il testo è s
 Nel caso di segnalazioni di errori, suggerimenti o richieste di chiarimenti, si prega di aprire una issue sul rispettivo repository GitHub.
 
 [.text-left]
-. Progetto Quarkus: https://github.com/amusarra/eventbus-logging-filter-jaxrs/issues
+. Progetto Quarkus:
+.. Issues: https://github.com/amusarra/eventbus-logging-filter-jaxrs/issues
+.. Discussioni: https://github.com/amusarra/eventbus-logging-filter-jaxrs/discussions
 . Progetto Documentazione: https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/issues
 
 Nell'ambito del social coding e del contributo alla comunità, sono ben accetti _pull request_ per migliorare il contenuto di quest'opera e del progetto di esempio.
