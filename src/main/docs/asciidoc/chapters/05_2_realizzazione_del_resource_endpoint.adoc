@@ -81,7 +81,7 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class EchoResourceEndPoint {
 
-@Path("echo")
+  @Path("echo")
   @POST
   public Response echo(
       @Size(min = 32, max = 4096,
