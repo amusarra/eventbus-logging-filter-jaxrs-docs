@@ -6,7 +6,7 @@
 
     <groupId>it.dontesta.eventbus.docs</groupId>
     <artifactId>eventbus-logging-filter-jaxrs-docs</artifactId>
-    <version>1.0.0-rc.1</version>
+    <version>1.0.0</version>
 
     <name>eventbus-logging-filter-jaxrs-docs</name>
     <description>EventBus Logging Filter JAX-RS Docs (eBook)</description>
