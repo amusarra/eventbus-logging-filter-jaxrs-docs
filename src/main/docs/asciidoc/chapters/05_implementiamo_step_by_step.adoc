@@ -59,4 +59,10 @@ Prima d'iniziare con qualunque attività d'implementazione, è necessario che i 
 
 L'intero progetto a cui ho dato il nome https://github.com/amusarra/eventbus-logging-filter-jaxrs[Event Bus Logging filter JAX-RS] è disponibile su GitHub e può essere clonato o scaricato per essere esaminato e testato. Inoltre, il progetto è stato realizzato usando la CLI di Quarkus e Maven, quindi è possibile eseguire il progetto in modalità sviluppo, testarlo e, se necessario, eseguire la https://quarkus.io/guides/building-native-image[build in modalità nativa]. All'interno del progetto è presente un file `README.md` che contiene tutte le informazioni necessarie per la compilazione, l'esecuzione e il test del progetto.
 
-Ho fatto in modo che per ogni step di realizzazione del progetto (precedentemente indicato) sia taggato, così che sia possibile seguire passo-passo l'evoluzione del progetto. Per esempio, nel caso in cui volessimo visionare il progetto al termine del primo step, sarà possibile eseguire il comando `git checkout step-1`, e così via per gli altri step. Quando inizieremo ogni step di realizzazione del progetto, sarà indicato il tag di riferimento.
+[NOTE]
+====
+*Nota*: Nel caso in cui abbiate Podman al posto di Docker, potreste incontrare in fase di build, test e avvio dell'applicazione l'errore: *Could not find a valid Docker environment*.
+Per risolvere il problema fare riferimento al https://github.com/amusarra/eventbus-logging-filter-jaxrs/blob/main/README.md[README.md] del progetto e in particolare la sezione _Qualche nota sulla configurazione di Podman_.
+====
+
+Per ogni step di realizzazione del progetto (precedentemente indicato) esiste il relativo https://github.com/amusarra/eventbus-logging-filter-jaxrs/tags[tag], così che sia possibile seguire passo-passo l'evoluzione del progetto. Per esempio, nel caso in cui volessimo visionare il progetto al termine del primo step, sarà possibile eseguire il comando `git checkout step-1`, e così via per gli altri step. Quando inizieremo ogni step di realizzazione del progetto, sarà indicato il tag di riferimento.

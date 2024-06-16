@@ -6,7 +6,7 @@
 
     <groupId>it.dontesta.eventbus.docs</groupId>
     <artifactId>eventbus-logging-filter-jaxrs-docs</artifactId>
-    <version>1.0.8-RC2</version>
+    <version>1.0.0</version>
 
     <name>eventbus-logging-filter-jaxrs-docs</name>
     <description>EventBus Logging Filter JAX-RS Docs (eBook)</description>
@@ -22,6 +22,22 @@
         </license>
     </licenses>
     <url>https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs</url>
+
+    <developers>
+        <developer>
+            <id>amusarra</id>
+            <name>Antonio Musarra</name>
+            <email>antonio.musarra@gmail.com</email>
+            <url>https://www.dontesta.it</url>
+            <organization>Antonio Musarra's Blog</organization>
+            <organizationUrl>https://www.dontesta.it</organizationUrl>
+            <roles>
+                <role>IT Senior Consultant</role>
+                <role>Senior Software Architect</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

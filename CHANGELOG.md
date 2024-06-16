@@ -8,12 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
 ### Changed
-- Aggiornamento del capitolo Informazioni sulla guida con le informazioni delle discussioni su GitHub.
-
 ### Removed
-
 ### Deprecated
-
 ### Security
+
+## [1.0.0] - 2024-06-17
+- First release of the project
