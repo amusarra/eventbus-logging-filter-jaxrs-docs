@@ -13,5 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Security
 
+## [1.0.1] - 2024-07-18
+- Added the README.md translation in English
+- Renamed the README.md file in README_it.md
+
 ## [1.0.0] - 2024-06-17
 - First release of the project

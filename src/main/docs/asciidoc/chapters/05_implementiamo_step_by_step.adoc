@@ -57,7 +57,7 @@ Prima d'iniziare con qualunque attività d'implementazione, è necessario che i 
 
 <<<
 
-L'intero progetto a cui ho dato il nome https://github.com/amusarra/eventbus-logging-filter-jaxrs[Event Bus Logging filter JAX-RS] è disponibile su GitHub e può essere clonato o scaricato per essere esaminato e testato. Inoltre, il progetto è stato realizzato usando la CLI di Quarkus e Maven, quindi è possibile eseguire il progetto in modalità sviluppo, testarlo e, se necessario, eseguire la https://quarkus.io/guides/building-native-image[build in modalità nativa]. All'interno del progetto è presente un file `README.md` che contiene tutte le informazioni necessarie per la compilazione, l'esecuzione e il test del progetto.
+L'intero progetto a cui ho dato il nome https://github.com/amusarra/eventbus-logging-filter-jaxrs[Event Bus Logging filter JAX-RS] è disponibile su GitHub e può essere clonato o scaricato per essere esaminato e testato. Inoltre, il progetto è stato realizzato usando la CLI di Quarkus e Maven, quindi è possibile eseguire il progetto in modalità sviluppo, testarlo e, se necessario, eseguire la https://quarkus.io/guides/building-native-image[build in modalità nativa]. All'interno del progetto è presente un file `README_it.md` che contiene tutte le informazioni necessarie per la compilazione, l'esecuzione e il test del progetto.
 
 [NOTE]
 ====
