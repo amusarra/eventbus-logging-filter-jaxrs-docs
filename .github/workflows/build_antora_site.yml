@@ -1,0 +1,71 @@
+# Workflow per la generazione e pubblicazione del sito Antora su GitHub Pages
+name: Deploy Antora Site to Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'docs/**'
+      - 'antora-playbook-prod.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+  # Permette l'esecuzione manuale dalla scheda Actions
+  workflow_dispatch:
+
+# Permessi per il deployment su GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Consente un solo deployment concorrente sulle GitHub Pages
+# Nota: questo workflow usa lo stesso concurrency group del workflow AsciiDoc HTML.
+# Se entrambi i workflow sono attivi, potrebbero accodarsi.
+# Si consiglia di disabilitare il workflow 'build_asciidoc_to_html_github_page.yml'
+# oppure di modificarlo per non fare il deploy su GitHub Pages (solo artifact).
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Antora and extensions
+        run: npm ci
+
+      - name: Generate Antora site
+        run: node_modules/.bin/antora antora-playbook-prod.yml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Antora site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build/site'
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+

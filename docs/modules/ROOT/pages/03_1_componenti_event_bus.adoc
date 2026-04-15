@@ -1,0 +1,3 @@
+= Componenti dell'Event Bus
+
+include::partial$chapters/03_1_componenti_event_bus.adoc[lines=2..-1]

@@ -1,0 +1,3 @@
+= Cos'è l'Event Bus di Quarkus?
+
+include::partial$chapters/02_cosa_e_event_bus_quarkus.adoc[lines=2..-1]

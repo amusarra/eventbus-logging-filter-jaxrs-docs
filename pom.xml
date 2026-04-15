@@ -98,12 +98,21 @@
                     <requires>
                         <require>asciidoctor-diagram</require>
                     </requires>
+                    <!--
+                        Le immagini risiedono nell'unica fonte di verità: docs/modules/ROOT/images/
+                        Vengono copiate nell'output come resources/images/ per compatibilità
+                        con l'attributo imagesdir usato nell'HTML5.
+                    -->
                     <resources>
                         <resource>
-                            <directory>src/main/docs/asciidoc</directory>
-                            <excludes>
-                                <exclude>resources/themes/**</exclude>
-                            </excludes>
+                            <!-- Immagini dalla struttura Antora (unica fonte di verità) -->
+                            <directory>${project.basedir}/docs/modules/ROOT/images</directory>
+                            <targetPath>resources/images</targetPath>
+                        </resource>
+                        <resource>
+                            <!-- Temi PDF (specifici Maven, non usati da Antora) -->
+                            <directory>src/main/docs/asciidoc/resources/themes</directory>
+                            <targetPath>resources/themes</targetPath>
                         </resource>
                     </resources>
                     <sourceDirectory>src/main/docs/asciidoc</sourceDirectory>
@@ -116,7 +125,11 @@
                         <attribute-missing>warn</attribute-missing>
                         <allow-uri-read>true</allow-uri-read>
                         <source-highlighter>rouge</source-highlighter>
-                        <imagesdir>./resources/images</imagesdir>
+                        <!--
+                            imagesdir per PDF: percorso assoluto alla directory immagini Antora.
+                            Il plugin risolve questo come percorso del filesystem per la generazione PDF.
+                        -->
+                        <imagesdir>${project.basedir}/docs/modules/ROOT/images</imagesdir>
                         <themesdir>./resources/themes</themesdir>
                         <revnumber>${project.version}</revnumber>
                         <revdate>${maven.build.timestamp}</revdate>
@@ -208,6 +221,10 @@
                             -->
                             <attributes>
                                 <source-highlighter>rouge</source-highlighter>
+                                <!--
+                                    Per HTML5 le immagini vengono copiate in resources/images/
+                                    dall'entry <resources> globale del plugin (vedi configurazione sopra).
+                                -->
                                 <imagesdir>resources/images</imagesdir>
                                 <toc>left</toc>
                                 <icons>font</icons>

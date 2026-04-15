@@ -1,0 +1,3 @@
+= Realizzazione del Dispatcher e Event Handler
+
+include::partial$chapters/05_7_realizzazione_dispatcher_e_event_handler.adoc[lines=2..-1]

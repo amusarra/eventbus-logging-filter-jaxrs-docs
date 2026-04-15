@@ -1,0 +1,3 @@
+= Informazioni sulla Guida
+
+include::partial$chapters/00_informazioni_articolo.adoc[lines=3..-1]

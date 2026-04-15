@@ -1,0 +1,3 @@
+= Diamo una spinta all'applicazione Quarkus
+
+include::partial$chapters/06_7_diamo_spinta_applicazione_quarkus.adoc[lines=2..-1]

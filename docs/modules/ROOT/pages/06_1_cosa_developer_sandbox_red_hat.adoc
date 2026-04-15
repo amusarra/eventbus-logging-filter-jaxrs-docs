@@ -1,0 +1,3 @@
+= Cos'è la Developer Sandbox di Red Hat?
+
+include::partial$chapters/06_1_cosa_developer_sandbox_red_hat.adoc[lines=2..-1]

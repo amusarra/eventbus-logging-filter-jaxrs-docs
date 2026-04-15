@@ -1,0 +1,3 @@
+= Adeguamento del filtro JAX-RS per inviare l'evento/messaggio sull'Event Bus
+
+include::partial$chapters/05_6_adeguamento_filtro_jax_rs.adoc[lines=2..-1]

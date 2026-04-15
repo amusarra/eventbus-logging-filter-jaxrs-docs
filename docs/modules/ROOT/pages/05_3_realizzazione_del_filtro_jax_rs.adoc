@@ -1,0 +1,3 @@
+= Realizzazione del filtro JAX-RS
+
+include::partial$chapters/05_3_realizzazione_del_filtro_jax_rs.adoc[lines=2..-1]

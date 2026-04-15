@@ -1,0 +1,69 @@
+= Sfruttare al massimo l'Event Bus di Quarkus
+Antonio Musarra <antonio.musarra@gmail.com>
+:description: Guida completa sull'Event Bus di Quarkus: architettura, utilizzi e vantaggi per applicazioni cloud native
+:keywords: quarkus, event-bus, publish-subscribe, java, reactive
+
+Benvenuto nella documentazione di riferimento del progetto link:{github-url}[*{project-name}*] — un progetto Quarkus che dimostra come sfruttare al massimo l'*Event Bus* per il tracciamento e logging di richieste e risposte JAX-RS.
+
+Questa guida descrive nel dettaglio l'Event Bus di Quarkus, spiegando come sfruttare le caratteristiche peculiari di questo componente fondamentale per implementare applicazioni e sistemi basati su eventi.
+
+[NOTE]
+====
+Questa documentazione è allineata alla versione *{project-version}* del progetto software link:{github-url}[{project-name}] e fa riferimento a *Quarkus {quarkus-version}*.
+====
+
+== Struttura della guida
+
+[cols="1,3",options="header"]
+|===
+| Capitolo | Descrizione
+
+| xref:01_introduzione.adoc[Introduzione]
+| Panoramica dell'Event Bus di Quarkus e del suo ruolo nelle applicazioni cloud native.
+
+| xref:02_cosa_e_event_bus_quarkus.adoc[Cos'è l'Event Bus di Quarkus?]
+| Definizione, utilizzi, vantaggi e possibili svantaggi dell'Event Bus di Quarkus.
+
+| xref:03_come_funziona_event_bus_quarkus.adoc[Come funziona l'Event Bus di Quarkus]
+| Spiegazione del funzionamento interno: componenti (Producer, Consumer, Bus), meccanismi di consegna e dinamica degli eventi.
+
+| xref:04_progettiamo_qualcosa_di_concreto.adoc[Progettiamo qualcosa di concreto]
+| Progettazione di un sistema per il tracciamento delle richieste/risposte JAX-RS con diagrammi di flusso e sequenza.
+
+| xref:05_implementiamo_step_by_step.adoc[Implementiamo step-by-step]
+| Guida passo-passo all'implementazione: creazione del progetto, filtro JAX-RS, Event Bus, Consumer, Dispatcher e Event Handler (MongoDB e AMQP).
+
+| xref:06_bonus.adoc[Bonus: Deploy su OpenShift]
+| Come effettuare il deploy dell'applicazione sulla Developer Sandbox di Red Hat OpenShift.
+
+| xref:07_risorse.adoc[Risorse]
+| Raccolta di risorse utili: documentazione ufficiale, articoli e libri consigliati.
+
+| xref:08_conclusioni.adoc[Conclusioni]
+| Riepilogo e considerazioni finali sull'approccio adottato.
+|===
+
+== Quick Start
+
+Per eseguire il progetto in locale in modalità sviluppo:
+
+[source,shell]
+----
+# Clona il repository
+git clone {github-url}
+cd {project-name}
+
+# Avvia Quarkus in modalità dev (Dev Services avviano automaticamente MongoDB e AMQP)
+./mvnw quarkus:dev
+----
+
+Per maggiori dettagli consulta il link:{github-url}/blob/main/README.md[README del progetto su GitHub].
+
+== Licenza
+
+Questa opera è rilasciata nei termini della licenza https://creativecommons.org/licenses/by-nc-sa/4.0/deed.it[Creative Commons Attribution-NonCommercial-ShareAlike 4.0].
+
+Tutti i diritti d'autore appartengono ad **Antonio Musarra**.
+Il progetto di esempio è disponibile su link:{github-docs-url}[GitHub] come progetto open source.
+
+

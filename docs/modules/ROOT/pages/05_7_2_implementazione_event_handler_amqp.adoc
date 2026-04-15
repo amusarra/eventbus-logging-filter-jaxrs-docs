@@ -1,0 +1,3 @@
+= Implementazione Event Handler AMQP
+
+include::partial$chapters/05_7_2_implementazione_event_handler_amqp.adoc[lines=2..-1]

@@ -1,0 +1,37 @@
+.xref:index.adoc[Presentazione]
+
+.xref:01_introduzione.adoc[Introduzione]
+
+.xref:02_cosa_e_event_bus_quarkus.adoc[Cos'è l'Event Bus di Quarkus?]
+
+.xref:03_come_funziona_event_bus_quarkus.adoc[Come funziona l'Event Bus di Quarkus]
+* xref:03_1_componenti_event_bus.adoc[Componenti dell'Event Bus]
+* xref:03_2_funzionamento_event_bus.adoc[Funzionamento dell'Event Bus]
+
+.xref:04_progettiamo_qualcosa_di_concreto.adoc[Progettiamo qualcosa di concreto]
+* xref:04_1_la_lista_della_spesa.adoc[La lista della spesa]
+
+.xref:05_implementiamo_step_by_step.adoc[Implementiamo step-by-step]
+* xref:05_1_creazione_del_progetto_quarkus.adoc[Creazione del progetto Quarkus]
+* xref:05_2_realizzazione_del_resource_endpoint.adoc[Realizzazione del Resource Endpoint]
+* xref:05_3_realizzazione_del_filtro_jax_rs.adoc[Realizzazione del filtro JAX-RS]
+* xref:05_4_definizione_degli_indirizzi_virtuali_event_bus.adoc[Indirizzi virtuali dell'Event Bus]
+* xref:05_5_registrazione_dei_consumer_per_gli_eventi_event_bus.adoc[Registrazione dei Consumer]
+* xref:05_6_adeguamento_filtro_jax_rs.adoc[Adeguamento del filtro JAX-RS]
+* xref:05_7_realizzazione_dispatcher_e_event_handler.adoc[Dispatcher e Event Handler]
+** xref:05_7_1_implementazione_event_handler_mongodb.adoc[Event Handler MongoDB]
+** xref:05_7_2_implementazione_event_handler_amqp.adoc[Event Handler AMQP]
+
+.xref:06_bonus.adoc[Bonus: Deploy su OpenShift]
+* xref:06_1_cosa_developer_sandbox_red_hat.adoc[Developer Sandbox di Red Hat]
+* xref:06_2_adeguare_progetto_quarkus_per_openShift.adoc[Adeguare il progetto per OpenShift]
+* xref:06_3_primo_deploy_open_shift.adoc[Primo deploy su OpenShift]
+* xref:06_4_creare_risorse_broker_amqp_mongodb_open_shift.adoc[Risorse AMQP e MongoDB su OpenShift]
+* xref:06_5_configurare_applicazione_quarkus_connettersi_risorse.adoc[Configurare la connessione alle risorse]
+* xref:06_6_deploy_finale_applicazione_open_shift.adoc[Deploy finale su OpenShift]
+* xref:06_7_diamo_spinta_applicazione_quarkus.adoc[Diamo una spinta all'applicazione]
+
+.xref:07_risorse.adoc[Risorse]
+
+.xref:08_conclusioni.adoc[Conclusioni]
+

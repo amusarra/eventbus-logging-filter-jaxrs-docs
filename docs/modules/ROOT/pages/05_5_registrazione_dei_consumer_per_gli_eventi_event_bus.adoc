@@ -1,0 +1,3 @@
+= Registrazione dei Consumer per gli eventi dell'Event Bus
+
+include::partial$chapters/05_5_registrazione_dei_consumer_per_gli_eventi_event_bus.adoc[lines=2..-1]

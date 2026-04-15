@@ -1,0 +1,3 @@
+= Configurare l'applicazione Quarkus per connettersi alle risorse
+
+include::partial$chapters/06_5_configurare_applicazione_quarkus_connettersi_risorse.adoc[lines=2..-1]

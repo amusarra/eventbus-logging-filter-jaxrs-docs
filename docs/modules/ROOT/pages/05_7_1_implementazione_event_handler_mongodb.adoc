@@ -1,0 +1,3 @@
+= Implementazione Event Handler MongoDB
+
+include::partial$chapters/05_7_1_implementazione_event_handler_mongodb.adoc[lines=2..-1]

@@ -1,0 +1,3 @@
+= Risorse
+
+include::partial$chapters/07_risorse.adoc[lines=2..-1,leveloffset=-1]

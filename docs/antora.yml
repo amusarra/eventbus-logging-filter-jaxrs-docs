@@ -1,0 +1,32 @@
+name: eventbus-logging-filter-jaxrs
+title: "Sfruttare al massimo l'Event Bus di Quarkus"
+version: '1.3.0'
+display_version: '1.3.0 (Quarkus 3.9.2)'
+prerelease: false
+
+nav:
+  - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    author: Antonio Musarra
+    email: antonio.musarra@gmail.com
+    source-highlighter: highlight.js
+    idprefix: ''
+    idseparator: '-'
+    sectnums: ''
+    sectnumlevels: 3
+    lang: it
+    encoding: utf-8
+    keywords: 'quarkus, event-bus, publish-subscribe, java'
+    description: >-
+      Guida che descrive nel dettaglio l'Event Bus di Quarkus cercando
+      di spiegare come sfruttare al massimo le caratteristiche peculiari
+      di questo componente fondamentale per implementare applicazioni
+      e sistemi basati su eventi.
+    project-name: eventbus-logging-filter-jaxrs
+    project-version: '1.3.0'
+    github-url: 'https://github.com/amusarra/eventbus-logging-filter-jaxrs'
+    github-docs-url: 'https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs'
+    quarkus-version: '3.9.2'
+

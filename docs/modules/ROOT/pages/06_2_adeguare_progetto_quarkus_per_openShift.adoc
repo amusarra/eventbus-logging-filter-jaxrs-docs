@@ -1,0 +1,3 @@
+= Adeguare il progetto Quarkus per OpenShift
+
+include::partial$chapters/06_2_adeguare_progetto_quarkus_per_openShift.adoc[lines=2..-1]

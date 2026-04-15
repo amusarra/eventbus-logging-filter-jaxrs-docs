@@ -1,0 +1,3 @@
+= Come funziona l'Event Bus di Quarkus
+
+include::partial$chapters/03_come_funziona_event_bus_quarkus.adoc[lines=2..-1]

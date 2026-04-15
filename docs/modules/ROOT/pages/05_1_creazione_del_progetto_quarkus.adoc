@@ -1,0 +1,3 @@
+= Creazione del progetto Quarkus
+
+include::partial$chapters/05_1_creazione_del_progetto_quarkus.adoc[lines=2..-1]

@@ -1,0 +1,3 @@
+= Primo deploy su OpenShift
+
+include::partial$chapters/06_3_primo_deploy_open_shift.adoc[lines=2..-1]

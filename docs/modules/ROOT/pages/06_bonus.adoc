@@ -1,0 +1,3 @@
+= Bonus
+
+include::partial$chapters/06_bonus.adoc[lines=2..-1]

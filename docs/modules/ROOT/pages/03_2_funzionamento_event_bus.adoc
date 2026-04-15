@@ -1,0 +1,3 @@
+= Funzionamento dell'Event Bus
+
+include::partial$chapters/03_2_funzionamento_event_bus.adoc[lines=2..-1]

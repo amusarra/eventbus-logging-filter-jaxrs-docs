@@ -1,0 +1,3 @@
+= Creare le risorse per il broker AMQP e MongoDB sul OpenShift
+
+include::partial$chapters/06_4_creare_risorse_broker_amqp_mongodb_open_shift.adoc[lines=2..-1]
