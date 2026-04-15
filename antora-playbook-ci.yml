@@ -2,7 +2,7 @@
 # Usa la sorgente locale (già checkouttata dal runner) invece di GitHub URL,
 # garantendo coerenza con l'ultimo commit senza dipendere da latenze di rete.
 # Legge più branch per il supporto multi-versione:
-#   HEAD         → versione corrente (main, es. 1.4.1)
+#   release/1.4.1 → versione corrente stabile
 #   release/1.3.0 → versione precedente stabile
 site:
   title: "Sfruttare al massimo l'Event Bus di Quarkus"
@@ -15,7 +15,7 @@ content:
     - url: .
       start_path: docs
       branches:
-        - HEAD
+        - release/1.4.1
         - release/1.3.0
 
 ui:
