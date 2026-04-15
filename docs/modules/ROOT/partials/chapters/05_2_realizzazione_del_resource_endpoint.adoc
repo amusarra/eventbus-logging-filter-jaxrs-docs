@@ -258,7 +258,7 @@ All'interno del progetto GitHub è possibile trovare la classe di test `EchoReso
 
 Dopo aver appurato il corretto funzionamento del servizio di echo, possiamo proseguire con il prossimo passo d'implementazione, ovvero, la realizzazione del filtro JAX-RS.
 
-==== Aggiornamento v1.4.1 — Endpoint reattivo
+== Aggiornamento v1.4.1 — Endpoint reattivo
 
 [NOTE]
 ====

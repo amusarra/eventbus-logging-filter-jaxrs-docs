@@ -287,7 +287,7 @@ http://localhost:8080/api/rest/echo
 
 Sul repository GitHub del progetto è disponibile lo unit test `CorrelationIdHttpHeaderTest` che si accerta che a fronte di una chiamata verso l'endpoint `/api/rest/echo` di ottenere in risposta l'header X-Correlation-ID il cui contenuto sia una stringa in formato UUID Type 4.
 
-==== Aggiornamento v1.4.0 — Filtro annotation-based e pattern capture-only
+== Aggiornamento v1.4.0 — Filtro annotation-based e pattern capture-only
 
 [NOTE]
 ====

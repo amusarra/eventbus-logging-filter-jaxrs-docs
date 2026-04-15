@@ -120,7 +120,7 @@ image::test_pubblicazione_consumazione_messaggi_curl.jpg[title="*Figura 5* - Tes
 }
 ....
 
-==== Aggiornamento v1.4.0 — Nuove proprietà di configurazione del dispatcher
+== Aggiornamento v1.4.0 — Nuove proprietà di configurazione del dispatcher
 
 [NOTE]
 ====

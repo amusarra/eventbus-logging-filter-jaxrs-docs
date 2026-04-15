@@ -6,7 +6,7 @@ Nel corso dell'articolo abbiamo descritto i campi di applicazione dell'Event Bus
 
 A dimostrazione del fatto che Quarkus sia nato per essere cloud native, abbiamo visto come sia stato semplice effettuare il deploy dell'applicazione Quarkus su OpenShift, un ambiente cloud native, e come sia stato possibile configurare l'applicazione Quarkus per connettersi alle risorse esterne come il broker AMQP Apache ActiveMQ Artemis e il database NoSQL MongoDB.
 
-=== Evoluzioni nella versione 1.4.x
+== Evoluzioni nella versione 1.4.x
 
 Le versioni **1.4.0** e **1.4.1** hanno introdotto importanti miglioramenti architetturali e qualitativi che rendono il sistema più robusto e adatto a scenari ad alta concorrenza:
 

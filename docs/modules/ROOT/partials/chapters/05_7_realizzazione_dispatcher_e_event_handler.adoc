@@ -146,7 +146,7 @@ Gli Event Handler sono responsabili di ricevere i messaggi dal Dispatcher, elabo
 
 Lascerò a voi il compito della realizzazione dell'Event Handler per il tracciamento su un database SQL come https://www.mysql.com/[MySQL] o https://www.postgresql.org/[PostgreSQL]. Vi auguro quindi buon divertimento!
 
-==== Aggiornamento v1.4.0 — TraceEventDispatcher ad alte prestazioni
+== Aggiornamento v1.4.0 — TraceEventDispatcher ad alte prestazioni
 
 [NOTE]
 ====
