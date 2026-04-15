@@ -64,18 +64,8 @@ Per la generazione della documentazione nei formati supportati, è necessario av
 (postazione di sviluppo o CI/CD) i seguenti software:
 - Java JDK 11 o superiore
 - Maven 3.8.x o superiore
-- Mermaid CLI 10.8.4 o superiore
 
-[Mermaid CLI](https://www.npmjs.com/package/@mermaid-js/mermaid-cli?activeTab=readme) è un tool per la generazione di diagrammi di flusso, sequenza, Gantt e classi a partire da codice sorgente;
-all'interno della documentazione sono presenti alcuni diagrammi generati tramite Mermaid.
-
-L'installazione di questo tool è possibile tramite il package manager npm per cui è richiesto la disponibilità di Node.js
-sul sistema (versione ^14.13 || >=16.0).
-
-```shell script
-npm install -g @mermaid-js/mermaid-cli
-```
-Console 0 - Installazione di Mermaid CLI
+> **Nota**: I diagrammi Mermaid e altri tipi di diagramma vengono renderizzati in remoto tramite il servizio pubblico [Kroki](https://kroki.io/) — non è necessario installare `mmdc` o Puppeteer localmente.
 
 ### Per la generazione del sito Antora
 Per la generazione del sito Antora è necessario:

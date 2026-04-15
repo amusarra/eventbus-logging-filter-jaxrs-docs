@@ -135,6 +135,13 @@
                         <revdate>${maven.build.timestamp}</revdate>
                         <revremark>Digital Version</revremark>
                         <organization>${project.organization.name}</organization>
+                        <!--
+                            Usa Kroki come server remoto per il rendering dei diagrammi (Mermaid, PlantUML, ecc.)
+                            evitando la dipendenza da strumenti locali come mmdc/Puppeteer/Chrome.
+                            Coerente con il rendering usato dal sito Antora (asciidoctor-kroki).
+                        -->
+                        <diagram-server-url>https://kroki.io</diagram-server-url>
+                        <diagram-server-type>kroki_io</diagram-server-type>
                     </attributes>
                 </configuration>
                 <executions>

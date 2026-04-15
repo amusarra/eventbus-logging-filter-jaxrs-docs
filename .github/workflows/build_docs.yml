@@ -57,13 +57,9 @@ jobs:
       - name: Install Antora and extensions
         run: npm ci
 
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
-
-      - name: Verify Mermaid CLI installation
-        run: mmdc --version
-
       # ── Generazione PDF e HTML5 via Maven ────────────────────────────────
+      # I diagrammi Mermaid/PlantUML vengono renderizzati via Kroki (https://kroki.io)
+      # configurato in pom.xml: non è necessario installare mmdc o Puppeteer.
       - name: Generate PDF and HTML5 with Maven
         run: mvn --batch-mode generate-resources
 
