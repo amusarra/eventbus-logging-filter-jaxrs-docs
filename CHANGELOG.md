@@ -13,6 +13,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Security
 
+## [1.4.1] - 2026-04-15
+
+### Added
+- Contenuto documentazione per la release software **1.4.1**:
+  - `05_2_realizzazione_del_resource_endpoint.adoc` — Sezione "Aggiornamento v1.4.1 — Endpoint reattivo": documenta il nuovo endpoint `POST /api/rest/echo/reactive` che restituisce `Uni<Response>` abilitando il percorso non-bloccante (event-loop) di Quarkus REST
+  - `05_3_realizzazione_del_filtro_jax_rs.adoc` — Sezione "Aggiornamento v1.4.0 — Filtro annotation-based e pattern capture-only": documenta l'adozione delle annotazioni `@ServerRequestFilter`/`@ServerResponseFilter` di RESTEasy Reactive e il pattern capture-only che delega serializzazione e pubblicazione al `TraceEventDispatcher`
+  - `05_6_adeguamento_filtro_jax_rs.adoc` — Sezione "Aggiornamento v1.4.0 — Nuove proprietà di configurazione del dispatcher": documenta le due nuove property (`app.trace.dispatcher.queue.capacity` e `app.trace.dispatcher.drain.sleep-ms`) che controllano la coda bounded e il thread di drain di `TraceEventDispatcher`
+  - `05_7_realizzazione_dispatcher_e_event_handler.adoc` — Sezione "Aggiornamento v1.4.0 — TraceEventDispatcher ad alte prestazioni": descrive l'architettura del nuovo `TraceEventDispatcher` (thread daemon dedicato, `ArrayBlockingQueue` bounded con backpressure) e include la tabella dei benchmark comparativi (v1.3.0 → v1.4.0: throughput +10–15%, latenza media −11–14%, latenza p95 −17–22%, errori zero)
+  - `08_conclusioni.adoc` — Sezione "Evoluzioni nella versione 1.4.x": riepilogo sintetico di tutti i miglioramenti architetturali e dei risultati misurabili introdotti nelle versioni 1.4.0 e 1.4.1
+- Supporto multi-versione Antora: creazione del branch `release/1.4.1` (versione stabile corrente) e `release/1.3.0` (versione stabile precedente)
+- Link navbar "Info sui download" dinamico con variabile Handlebars `{{page.version}}` per URL versione-consapevoli nel version switcher Antora
+
+### Changed
+- Tutti i playbook Antora aggiornati per referenziare i branch di release espliciti:
+  - `antora-playbook.yml` — `HEAD` → `release/1.4.1`
+  - `antora-playbook-ci.yml` — `HEAD` → `release/1.4.1` + commento aggiornato per riflettere la strategia multi-branch
+  - `antora-playbook-prod.yml` — `main` → `release/1.4.1`
+- Allineamento versioni in tutti i file di configurazione:
+  - `docs/antora.yml` — `version: '1.4.1'`, `display_version: '1.4.1 (Quarkus 3.34.3)'`, `quarkus-version: '3.34.3'`, `project-version: '1.4.1'`; aggiunto campo `name: eventbus-logging-filter-jaxrs` richiesto da Antora 3.x
+  - `pom.xml` — `<software.version>1.4.1</software.version>`, `<quarkus.version>3.34.3</quarkus.version>`; `<revnumber>` ora usa `${software.version}` anziché `${project.version}`; aggiunti attributi AsciiDoc globali (`project-version`, `quarkus-version`, `github-url`, `github-docs-url`, `diagram-server-url`, `diagram-server-type`)
+  - `docs/modules/ROOT/partials/_attributes-common.adoc` — `:revnumber: v1.4.1`, `:revdate: Aprile 2026`
+  - Playbook (`antora-playbook*.yml`) — `project-version: '1.4.1'`, `quarkus-version: '3.34.3'`
+- `README.md` e `README_it.md` — Rimosso il requisito di installazione di Mermaid CLI (`mmdc`): il rendering dei diagrammi avviene ora via Kroki remoto
+
+### Fixed
+- Rendering diagrammi Mermaid/PlantUML: migrazione da `mmdc` CLI locale (richiedeva Puppeteer/Chrome, causa di errori CI `"mmdc failed: Generating single mermaid chart"`) al servizio remoto [Kroki](https://kroki.io) tramite attributi `diagram-server-url` e `diagram-server-type` in `pom.xml`
+- GitHub Actions — warning di deprecazione Node.js 20: aggiunto `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` come variabile d'ambiente a livello di workflow in `build_docs.yml` per optare in anticipo su Node.js 24
+- Livelli heading AsciiDoc fuori sequenza nei nuovi paragrafi di aggiornamento: corretti `====` → `==` in `05_2`, `05_3`, `05_6`, `05_7` e `===` → `==` in `08_conclusioni` eliminando i warning Antora `"section title out of sequence"`
+
 ## [1.3.0] - 2026-04-15
 
 ### Added
