@@ -1,6 +1,6 @@
 :author: Antonio Musarra
-:revnumber: v1.0.7
-:revdate: Aprile 18, 2024
+:revnumber: v1.3.0
+:revdate: Aprile 2026
 :email: antonio.musarra@gmail.com
 :description: Articolo che descrive nel dettaglio \
 l'Event Bus di Quarkus cercando di spiegare come \
