@@ -4,7 +4,6 @@ build/
 
 # Node.js / Antora
 node_modules/
-package-lock.json
 
 pom.xml.tag
 pom.xml.releaseBackup
