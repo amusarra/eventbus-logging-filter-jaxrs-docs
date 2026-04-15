@@ -1,3 +1,6 @@
+# Playbook Antora per CI/CD.
+# Usa la sorgente locale (già checkouttata dal runner) invece di GitHub URL,
+# garantendo coerenza con l'ultimo commit senza dipendere da latenze di rete.
 site:
   title: "Sfruttare al massimo l'Event Bus di Quarkus"
   url: https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs
@@ -41,8 +44,6 @@ antora:
     - require: '@antora/lunr-extension'
 
 output:
-  dir: ./target/antora-site
+  dir: ./build/site
   clean: true
-
-
 

@@ -29,4 +29,5 @@ asciidoc:
     github-url: 'https://github.com/amusarra/eventbus-logging-filter-jaxrs'
     github-docs-url: 'https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs'
     quarkus-version: '3.9.2'
+    downloads-url: 'https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/downloads'
 

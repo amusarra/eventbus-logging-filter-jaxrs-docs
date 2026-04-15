@@ -1,0 +1,126 @@
+# Workflow unificato: genera PDF, HTML5 e sito Antora, poi pubblica su GitHub Pages.
+# Sostituisce i workflow separati:
+#   - build_asciidoc_to_pdf.yml
+#   - build_asciidoc_to_html_github_page.yml
+#   - build_antora_site.yml
+name: Build Docs and Deploy to Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'docs/**'
+      - 'src/main/docs/**'
+      - 'antora-playbook-ci.yml'
+      - 'antora-playbook-prod.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pom.xml'
+      - 'supplemental-ui/**'
+
+  # Permette l'esecuzione manuale dalla scheda Actions
+  workflow_dispatch:
+
+# Permessi per il deployment su GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Consente un solo deployment concorrente sulle GitHub Pages
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'corretto'
+          cache: maven
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Antora and extensions
+        run: npm ci
+
+      - name: Install Mermaid CLI
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Verify Mermaid CLI installation
+        run: mmdc --version
+
+      # ── Generazione PDF e HTML5 via Maven ────────────────────────────────
+      - name: Generate PDF and HTML5 with Maven
+        run: mvn --batch-mode generate-resources
+
+      # ── Generazione sito Antora (usa sorgente locale già checkouttata) ──
+      - name: Generate Antora site
+        run: node_modules/.bin/antora antora-playbook-ci.yml
+
+      # ── Crea la cartella downloads dentro il sito Antora ─────────────────
+      - name: Create downloads directory in Antora site
+        run: mkdir -p build/site/downloads
+
+      # ── Copia il PDF nel sito Antora con nome statico ─────────────────────
+      - name: Copy PDF to Antora site downloads
+        run: |
+          PDF_FILE=$(ls target/generated-pdf/eventbus-logging-filter-jaxrs-docs-*.pdf | head -1)
+          echo "Copying $PDF_FILE to build/site/downloads/eventbus-logging-filter-jaxrs-docs.pdf"
+          cp "$PDF_FILE" build/site/downloads/eventbus-logging-filter-jaxrs-docs.pdf
+
+      # ── Crea lo ZIP dell'HTML5 nel sito Antora ────────────────────────────
+      - name: Create HTML5 ZIP and copy to Antora site downloads
+        run: |
+          cd target
+          zip -r ../build/site/downloads/eventbus-logging-filter-jaxrs-docs-html5.zip generated-html5/
+          echo "HTML5 ZIP created in build/site/downloads/"
+
+      # ── Artefatti GitHub Actions (scaricabili dalla scheda Actions) ───────
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-pdf
+          path: 'target/generated-pdf/eventbus-logging-filter-jaxrs-docs-*.pdf'
+          retention-days: 90
+
+      - name: Upload HTML5 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-html5
+          path: 'target/generated-html5/'
+          retention-days: 90
+
+      # ── Pubblicazione su GitHub Pages ─────────────────────────────────────
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Antora site artifact (with downloads)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build/site'
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
