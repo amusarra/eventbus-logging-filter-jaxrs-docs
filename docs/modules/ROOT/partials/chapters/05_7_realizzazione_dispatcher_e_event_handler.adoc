@@ -145,3 +145,121 @@ Passiamo adesso all'implementazione degli Event Handler. Questi componenti sono 
 Gli Event Handler sono responsabili di ricevere i messaggi dal Dispatcher, elaborarli e restituire l'esito dell'elaborazione. Implementeremo due Event Handler, uno per il tracciamento su un database NoSQL come https://www.mongodb.com/it-it[MongoDB] e l'altro per il tracciamento su un broker di messaggi come https://activemq.apache.org/components/artemis/[Apache ActiveMQ Artemis].
 
 Lascerò a voi il compito della realizzazione dell'Event Handler per il tracciamento su un database SQL come https://www.mysql.com/[MySQL] o https://www.postgresql.org/[PostgreSQL]. Vi auguro quindi buon divertimento!
+
+==== Aggiornamento v1.4.0 — TraceEventDispatcher ad alte prestazioni
+
+[NOTE]
+====
+Quanto descritto in questa sezione si riferisce alla versione *1.4.0* del progetto software.
+====
+
+A partire dalla versione **1.4.0**, il componente `Dispatcher` è stato sostituito da un nuovo bean `@ApplicationScoped` denominato `TraceEventDispatcher`, progettato per eliminare i colli di bottiglia riscontrati sotto carico elevato.
+
+*Problemi risolti*
+
+L'approccio precedente usava `@Scheduled` per il drain della coda e `ConcurrentLinkedQueue` non bounded. Sotto carico elevato ciò causava:
+
+* *starvation dello scheduler*: il thread `@Scheduled` competeva con i thread HTTP per il pool di worker Quarkus, non ricevendo CPU sufficiente;
+* *rischio OOM* e errori `SRMSG00034` ("Insufficient downstream requests to emit item") causati dalla coda non limitata che si accumulava senza controllo.
+
+*Architettura del TraceEventDispatcher*
+
+[source,java, title="*Code 7b* - Struttura semplificata del TraceEventDispatcher (v1.4.0)"]
+....
+@ApplicationScoped
+public class TraceEventDispatcher {
+
+  // Code bounded per request e response (capacità configurabile, default 5000)
+  private ArrayBlockingQueue<RequestTrace> requestQueue;
+  private ArrayBlockingQueue<ResponseTrace> responseQueue;
+
+  // Contatori atomici degli eventi scartati per backpressure
+  private final AtomicLong droppedRequests = new AtomicLong();
+  private final AtomicLong droppedResponses = new AtomicLong();
+
+  void onStart(@Observes StartupEvent ev) {
+    requestQueue = new ArrayBlockingQueue<>(queueCapacity);
+    responseQueue = new ArrayBlockingQueue<>(queueCapacity);
+
+    // Thread daemon OS-scheduled dedicato — non condivide il worker pool Quarkus
+    Thread.ofPlatform().daemon(true).name("trace-event-dispatcher").start(this::drainLoop);
+  }
+
+  // Accoda O(1) — chiamato dal filtro JAX-RS
+  public void enqueueRequest(RequestTrace trace) {
+    if (!requestQueue.offer(trace)) {
+      droppedRequests.incrementAndGet();
+      log.warn("Request trace dropped — queue full");
+    }
+  }
+
+  // Drain in burst: costruisce JSON, serializza e pubblica sull'Event Bus
+  private void drainLoop() {
+    while (!Thread.currentThread().isInterrupted()) {
+      RequestTrace req = requestQueue.poll();
+      ResponseTrace res = responseQueue.poll();
+      if (req == null && res == null) {
+        Thread.sleep(intervalMs);    // idle sleep configurabile
+        continue;
+      }
+      if (req != null) eventBus.publish(httpRequestVirtualAddress, toJson(req));
+      if (res != null) eventBus.publish(httpResponseVirtualAddress, toJson(res));
+    }
+  }
+
+  @PreDestroy
+  void onStop() { /* flush finale della coda prima dello shutdown */ }
+}
+....
+
+I punti architetturali salienti sono riassunti nella tabella seguente.
+
+[cols="1,3",options="header"]
+|===
+| Componente | Descrizione
+
+| Thread daemon
+| `Thread.ofPlatform().daemon(true).name("trace-event-dispatcher")` — thread OS-scheduled dedicato che non condivide il pool di worker Quarkus con i thread HTTP.
+
+| `ArrayBlockingQueue` (bounded)
+| Capacità configurabile via `app.filter.dispatcher.queue.capacity` (default 5 000). Gli eventi in eccesso vengono scartati con `WARN` e conteggiati da `AtomicLong`.
+
+| Drain in burst mode
+| Il thread drena in modo continuo quando le code contengono elementi; va in sleep di `app.filter.dispatcher.interval.ms` (default 20 ms) quando entrambe le code sono vuote.
+
+| Flush su `@PreDestroy`
+| Prima dello shutdown, il dispatcher svuota le code residue per evitare la perdita di eventi già accodati.
+
+| Backpressure
+| Drop-on-full con contatori `droppedRequests` / `droppedResponses` (`AtomicLong`) ispezionabili a runtime.
+|===
+
+*Risultati di benchmark (v1.3.0 → v1.4.0)*
+
+I benchmark eseguiti su Red Hat Developer Sandbox (OpenShift 4.21.7 / k8s v1.34.5, 1 Pod, 15 000 richieste totali con JMeter/Taurus) mostrano i seguenti miglioramenti:
+
+[cols="^1,^1,^1,^1",options="header"]
+|===
+| Metrica | v1.3.0 | v1.4.0 | Variazione
+
+| Throughput
+| ~baseline~
+| +10–15%
+| ↑
+
+| Latenza media
+| ~baseline~
+| −11–14%
+| ↓
+
+| Latenza p95
+| ~baseline~
+| −17–22%
+| ↓
+
+| Errori
+| 0
+| 0
+| —
+|===
+

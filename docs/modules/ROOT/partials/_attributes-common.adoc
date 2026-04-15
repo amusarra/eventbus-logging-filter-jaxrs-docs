@@ -1,5 +1,5 @@
 :author: Antonio Musarra
-:revnumber: v1.3.0
+:revnumber: v1.4.1
 :revdate: Aprile 2026
 :email: antonio.musarra@gmail.com
 :description: Articolo che descrive nel dettaglio \

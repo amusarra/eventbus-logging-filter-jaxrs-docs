@@ -51,9 +51,9 @@
         <asciidoctorj.diagram-ditaamini.version>1.0.3</asciidoctorj.diagram-ditaamini.version>
         <jruby.version>9.4.6.0</jruby.version>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <!-- Versione del progetto software di riferimento (allineata ad Antora version: '1.3.0') -->
-        <software.version>1.3.0</software.version>
-        <quarkus.version>3.9.2</quarkus.version>
+        <!-- Versione del progetto software di riferimento (allineata ad Antora version: '1.4.1') -->
+        <software.version>1.4.1</software.version>
+        <quarkus.version>3.34.3</quarkus.version>
     </properties>
 
     <build>

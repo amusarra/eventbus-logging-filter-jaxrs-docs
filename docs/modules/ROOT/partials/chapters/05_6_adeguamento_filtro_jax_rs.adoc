@@ -119,3 +119,82 @@ image::test_pubblicazione_consumazione_messaggi_curl.jpg[title="*Figura 5* - Tes
     "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}"
 }
 ....
+
+==== Aggiornamento v1.4.0 — Nuove proprietà di configurazione del dispatcher
+
+[NOTE]
+====
+Quanto descritto in questa sezione si riferisce alla versione *1.4.0* del progetto software.
+====
+
+Con la migrazione al pattern *capture-only* e al nuovo `TraceEventDispatcher` (vedere la sezione successiva), il file `application.properties` si arricchisce di due nuove proprietà di configurazione che controllano il comportamento della coda bounded e del thread di drain.
+
+[source,properties, title="*Configurazione 2b* - Nuove proprietà per il TraceEventDispatcher (v1.4.0)"]
+....
+# Intervallo di sleep (ms) del thread di drain quando entrambe le code sono vuote.
+# Default: 20 ms
+app.filter.dispatcher.interval.ms=20
+
+# Capacità massima di ciascuna coda bounded (ArrayBlockingQueue).
+# Gli eventi che arrivano a coda piena vengono scartati con log WARN.
+# Default: 5000
+app.filter.dispatcher.queue.capacity=5000
+....
+
+[IMPORTANT]
+====
+La proprietà `app.filter.dispatcher.interval` (stringa ISO-8601 usata con `@Scheduled`) è stata rinominata in `app.filter.dispatcher.interval.ms` (intero in millisecondi). Se avete configurazioni personalizzate basate sulla versione precedente, aggiornare il nome della proprietà.
+====
+
+image::test_pubblicazione_consumazione_messaggi_curl.jpg[title="*Figura 5* - Test della generazione dei messaggi e pubblicazione"]
+
+[source, shell, title="*Console 10* - Esempio dei messaggi di request e response pubblicati sull'Event Bus e consumati da HttpRequestConsumer e HttpResponseConsumer"]
+....
+// Messaggio in formato JSON generato dal filtro JAX-RS sulla catena di request
+// e successivamente pubblicato sull'Event Bus verso il virtual address configurato
+{
+  "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+  "remote-ip-address": "127.0.0.1",
+  "headers": {
+    "User-Agent": [
+      "curl/8.4.0"
+    ],
+    "Host": [
+      "localhost:8080"
+    ],
+    "Accept": [
+      "*/*"
+    ],
+    "Content-Length": [
+      "82"
+    ],
+    "Content-Type": [
+      "application/json"
+    ]
+  },
+  "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}",
+  "uri-info": "http://localhost:8080/api/rest/echo",
+  "local-date-time-in": "2024-04-11T18:01:48.467365",
+  "method": "POST",
+  "media-type": "application/json",
+  "acceptable-language": "[]",
+  "acceptable-media-types": "[*/*]"
+}
+
+// Messaggio in formato JSON generato dal filtro JAX-RS sulla catena di response
+// e successivamente pubblicato sull'Event Bus verso il virtual address configurato
+
+{
+    "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+    "local-date-time-out": "2024-04-11T18:01:48.528893",
+    "status": 200,
+    "status-info-family-name": "SUCCESSFUL",
+    "status-info-reason": "OK",
+    "headers": {
+        "X-Correlation-ID": "e9c2a4d3-27b9-4ceb-830e-4f293307bc5a",
+        "Set-Cookie": "user_tracking_id=27765cdb-0d24-489f-b8cb-ae5b635a4f74;Version=1;Comment=\"Cookie di tracciamento dell'utente\";Path=/;Max-Age=2592000"
+    },
+    "body": "{\"message\": \"Primo test del filtro JAX-RS che aggiunge l'header X-Correlation-ID\"}"
+}
+....
+

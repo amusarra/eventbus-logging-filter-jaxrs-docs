@@ -286,3 +286,66 @@ http://localhost:8080/api/rest/echo
 ....
 
 Sul repository GitHub del progetto è disponibile lo unit test `CorrelationIdHttpHeaderTest` che si accerta che a fronte di una chiamata verso l'endpoint `/api/rest/echo` di ottenere in risposta l'header X-Correlation-ID il cui contenuto sia una stringa in formato UUID Type 4.
+
+==== Aggiornamento v1.4.0 — Filtro annotation-based e pattern capture-only
+
+[NOTE]
+====
+Quanto descritto in questa sezione si riferisce alla versione *1.4.0* del progetto software.
+====
+
+A partire dalla versione **1.4.0**, il filtro `TraceJaxRsRequestResponseFilter` è stato riscritto adottando due importanti cambiamenti architetturali.
+
+*Annotazioni `@ServerRequestFilter` / `@ServerResponseFilter`*
+
+Le interfacce `ContainerRequestFilter` e `ContainerResponseFilter` (con `@Provider` e `@Priority`) sono state sostituite dalle annotazioni RESTEasy Reactive `@ServerRequestFilter` e `@ServerResponseFilter`. Questo approccio consente l'iniezione diretta di parametri Vert.x/RESTEasy Reactive (es. `RoutingContext`) senza necessità di registrazione esplicita via `@Provider`.
+
+[mermaid, title="*Diagramma 7b* - TraceJaxRsRequestResponseFilter con annotazioni RESTEasy Reactive (v1.4.0)"]
+....
+classDiagram
+    class TraceJaxRsRequestResponseFilter {
+        +requestFilter(RoutingContext, UriInfo) void
+        +responseFilter(RoutingContext, ContainerResponseContext) void
+    }
+
+    class ServerRequestFilter ["@ServerRequestFilter"]
+    class ServerResponseFilter ["@ServerResponseFilter"]
+    class ApplicationScoped ["@ApplicationScoped"]
+
+    ServerRequestFilter .. TraceJaxRsRequestResponseFilter
+    ServerResponseFilter .. TraceJaxRsRequestResponseFilter
+    ApplicationScoped .. TraceJaxRsRequestResponseFilter
+....
+
+*Pattern capture-only*
+
+Il filtro adotta ora il pattern *capture-only*: invece di costruire il JSON e chiamare `EventBus.publish()` direttamente, il filtro legge il body e accoda record leggeri (`RequestTrace` / `ResponseTrace`, costituiti da soli tipi primitivi/String) in O(1) verso il `TraceEventDispatcher`. Tutta la costruzione JSON, serializzazione e pubblicazione sull'Event Bus sono delegate al dispatcher, eliminando qualsiasi impatto sul ciclo di vita HTTP.
+
+[source,java, title="*Code 3b* - Struttura semplificata del filtro v1.4.0 con pattern capture-only"]
+....
+@ApplicationScoped
+public class TraceJaxRsRequestResponseFilter {
+
+  @Inject
+  TraceEventDispatcher dispatcher;
+
+  @ServerRequestFilter
+  public void requestFilter(RoutingContext routingContext, UriInfo uriInfo) {
+    if (!filterEnabled) return;
+    if (!requestUriIsFiltered(uriInfo.getRequestUri().getPath())) return;
+
+    String correlationId = getOrCreateCorrelationId(routingContext);
+    String body = readBodyAsync(routingContext);           // lettura body async
+    dispatcher.enqueueRequest(new RequestTrace(...));      // O(1) — nessuna serializzazione
+  }
+
+  @ServerResponseFilter
+  public void responseFilter(RoutingContext routingContext,
+                             ContainerResponseContext responseContext) {
+    if (!filterEnabled) return;
+    dispatcher.enqueueResponse(new ResponseTrace(...));    // O(1)
+  }
+}
+....
+
+Per i dettagli sull'implementazione di `TraceEventDispatcher` fare riferimento alla sezione _Realizzazione del Dispatcher e Event Handler_.

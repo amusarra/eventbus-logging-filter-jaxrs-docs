@@ -257,3 +257,39 @@ http://localhost:8080/api/rest/echo | jq
 All'interno del progetto GitHub è possibile trovare la classe di test `EchoResourceEndPointTest` che contiene i test per il servizio di echo e che potete eseguire per verificare il corretto funzionamento del servizio. Per lanciare i test è sufficiente eseguire il comando `mvn test` o `quarkus test` dalla directory del progetto
 
 Dopo aver appurato il corretto funzionamento del servizio di echo, possiamo proseguire con il prossimo passo d'implementazione, ovvero, la realizzazione del filtro JAX-RS.
+
+==== Aggiornamento v1.4.1 — Endpoint reattivo
+
+[NOTE]
+====
+Quanto descritto in questa sezione si riferisce alla versione *1.4.1* del progetto software.
+====
+
+A partire dalla versione **1.4.1**, `EchoResourceEndPoint` include un secondo endpoint reattivo `POST /api/rest/echo/reactive` che restituisce `Uni<Response>` anziché `Response`, abilitando il percorso non-bloccante (event-loop) di Quarkus REST. La stessa regola di validazione bean (`@Size(min = 32, max = 4096)`) si applica all'input.
+
+[source,java, title="*Code 2b* - Endpoint reattivo aggiunto in v1.4.1"]
+....
+@Path("echo/reactive")
+@POST
+public Uni<Response> echoReactive(
+    @Size(min = 32, max = 4096,
+        message = "Il parametro di input deve essere compreso tra 32 byte e 4 KB")
+    String input) {
+  return Uni.createFrom().item(Response.ok(input).build());
+}
+....
+
+L'endpoint reattivo è utile per:
+
+* verificare il percorso *event-loop* nel filtro (`TraceJaxRsRequestResponseFilter#readBodyAsync`);
+* confrontare le prestazioni tra endpoint bloccante e non-bloccante sotto carico.
+
+[source,shell, title="*Console 6b* - Test dell'endpoint reattivo `/api/rest/echo/reactive`"]
+....
+curl -v \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Test endpoint reattivo con Uni<Response> in Quarkus REST"}' \
+  http://localhost:8080/api/rest/echo/reactive
+....
+
+La classe di test `EchoResourceEndPointTest` è stata aggiornata con i metodi `testEchoReactiveSuccess`, `testEchoReactiveValidation` e `testEchoReactiveBodyEmpty` che coprono i principali scenari dell'endpoint reattivo.

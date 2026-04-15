@@ -5,3 +5,17 @@ L'Event Bus di Quarkus si presenta come una potente e flessibile risorsa per la 
 Nel corso dell'articolo abbiamo descritto i campi di applicazione dell'Event Bus e abbiamo affrontato in modo concreto la progettazione e implementazione di un sistema per il tracciamento delle richieste e delle risposte HTTP in un'applicazione Quarkus utilizzando l'Event Bus, riscontrando come sia stato difatti abbastanza semplice creare questo sistema dove ogni singolo componente è responsabile di un'azione specifica e comunica con gli altri componenti attraverso la pubblicazione e sottoscrizione di messaggi.
 
 A dimostrazione del fatto che Quarkus sia nato per essere cloud native, abbiamo visto come sia stato semplice effettuare il deploy dell'applicazione Quarkus su OpenShift, un ambiente cloud native, e come sia stato possibile configurare l'applicazione Quarkus per connettersi alle risorse esterne come il broker AMQP Apache ActiveMQ Artemis e il database NoSQL MongoDB.
+
+=== Evoluzioni nella versione 1.4.x
+
+Le versioni **1.4.0** e **1.4.1** hanno introdotto importanti miglioramenti architetturali e qualitativi che rendono il sistema più robusto e adatto a scenari ad alta concorrenza:
+
+* *Pattern capture-only*: il filtro JAX-RS delega tutta la logica di serializzazione e pubblicazione al `TraceEventDispatcher`, riducendo al minimo l'impatto sul ciclo di vita HTTP.
+* *Thread daemon dedicato*: elimina la starvation dello scheduler `@Scheduled` sotto carico elevato.
+* *Code bounded con backpressure*: `ArrayBlockingQueue` con capacità 5 000 previene il rischio OOM e gli errori `SRMSG00034` di SmallRye Reactive Messaging.
+* *Annotazioni RESTEasy Reactive*: `@ServerRequestFilter` / `@ServerResponseFilter` semplificano la registrazione del filtro e abilitano l'iniezione diretta di `RoutingContext`.
+* *Endpoint reattivo*: `POST /api/rest/echo/reactive` restituisce `Uni<Response>` per il percorso non-bloccante.
+* *Copertura test ≥ 95 %*: `TraceEventDispatcher` al 97,6% e `TraceJaxRsRequestResponseFilter` al 95,0% (JaCoCo line coverage).
+
+Questi interventi si sono tradotti in miglioramenti misurabili: +10–15% di throughput, −11–14% di latenza media e −17–22% di latenza al percentile 95, con zero errori, rispetto alla versione 1.3.0.
+
