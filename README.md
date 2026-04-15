@@ -3,9 +3,7 @@
 [![Keep a Changelog v1.1.0 badge](https://img.shields.io/badge/changelog-Keep%20a%20Changelog%20v1.1.0-%23E05735)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-CC--BY--NC--SA--4.0-lightgrey)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.it)
 
-[![Maven AsciiDoc to PDF](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_asciidoc_to_pdf.yml/badge.svg)](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_asciidoc_to_pdf.yml)
-[![Build AsciiDoc to HTML5](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_asciidoc_to_html_github_page.yml/badge.svg)](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_asciidoc_to_html_github_page.yml)
-[![Deploy Antora Site to Pages](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_antora_site.yml/badge.svg)](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_antora_site.yml)
+[![Build Docs and Deploy to Pages](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_docs.yml/badge.svg)](https://github.com/amusarra/eventbus-logging-filter-jaxrs-docs/actions/workflows/build_docs.yml)
 
 The **Document as Code (doc-as-code)** approach applies software development principles to the creation, management, and distribution of documentation. This method aims to improve the quality, efficiency, and agility of documentation production by treating documents as part of the project's source code.
 
@@ -29,20 +27,22 @@ eventbus-logging-filter-jaxrs-docs/
 │   ├── antora.yml                     # Antora component descriptor (version: 1.3.0)
 │   └── modules/
 │       └── ROOT/
-│           ├── nav.adoc               # Antora navigation
-│           ├── pages/                 # Antora pages (one per chapter)
+│           ├── nav.adoc               # Antora navigation (includes Downloads entry)
+│           ├── pages/                 # Antora pages (one per chapter + downloads.adoc)
 │           ├── partials/              # AsciiDoc partials (chapter content + attributes)
 │           │   ├── _attributes-common.adoc
 │           │   ├── _attributes-pdf.adoc
 │           │   └── chapters/          # Chapter source files
 │           └── images/                # Documentation images
 ├── src/main/docs/asciidoc/            # Maven Asciidoctor source (PDF/HTML5 generation)
-│   ├── index.adoc                     # Master document for PDF/HTML5
-│   ├── attributes/                    # PDF/HTML5 attributes
-│   ├── chapters/                      # Chapter files (copies - for Maven build)
-│   └── resources/                     # Themes and images for Maven build
+│   ├── index.adoc                     # Master document (includes partials from docs/)
+│   └── resources/                     # Themes for Maven PDF build
+├── supplemental-ui/                   # Custom Antora UI overrides
+│   └── partials/
+│       └── header-content.hbs         # Navbar with 📥 Download dropdown
 ├── antora-playbook.yml                # Antora Playbook (local development)
-├── antora-playbook-prod.yml           # Antora Playbook (production / CI)
+├── antora-playbook-ci.yml             # Antora Playbook (CI — local source)
+├── antora-playbook-prod.yml           # Antora Playbook (production — GitHub source)
 └── package.json                       # Node.js dependencies for Antora
 ```
 
@@ -133,16 +133,30 @@ The Antora component is located in the `docs/` directory:
 
 ### Antora Playbook Configuration
 
-Two playbooks are provided:
+Three playbooks are provided:
 
 - **`antora-playbook.yml`** — For local development. Uses the local filesystem as content source and outputs to `target/antora-site/`.
-- **`antora-playbook-prod.yml`** — For CI/CD production builds. Uses the GitHub repository as content source and outputs to `build/site/`.
+- **`antora-playbook-ci.yml`** — For CI/CD builds. Uses the locally checked-out source (`url: .`) to ensure the runner processes the latest commit without network latency. Outputs to `build/site/`.
+- **`antora-playbook-prod.yml`** — Alternative production playbook. Uses the GitHub repository as remote content source; useful for triggering remote builds.
 
 ### Diagram Support
 
 The Antora site uses [Kroki](https://kroki.io/) via the `asciidoctor-kroki` extension to render diagrams (Mermaid, PlantUML, etc.) defined in the AsciiDoc source. Diagrams are rendered server-side by the public Kroki service — no local diagram tool installation is required for Antora builds.
 
-## Publishing HTML Documentation on GitHub Pages
-The generated HTML documentation is also available on [GitHub Pages](https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/). This is made possible by the GitHub Actions [Deploy AsciiDoc to Pages](.github/workflows/build_asciidoc_to_html_github_page.yml), which publishes the generated HTML documentation (via the AsciiDoc Maven plugin) to GitHub Pages.
+## CI/CD and GitHub Pages
 
-The Antora site is published via the GitHub Actions [Deploy Antora Site to Pages](.github/workflows/build_antora_site.yml) workflow, triggered on every push to the `main` branch when content under `docs/` changes.
+A single unified GitHub Actions workflow ([Build Docs and Deploy to Pages](.github/workflows/build_docs.yml)) handles the complete documentation pipeline on every push to `main`:
+
+1. **Generate PDF** — via Maven (`mvn generate-resources`) → `target/generated-pdf/eventbus-logging-filter-jaxrs-docs-1.0.0.pdf`
+2. **Generate HTML5** — via Maven → `target/generated-html5/`
+3. **Generate Antora site** — using `antora-playbook-ci.yml` (local source) → `build/site/`
+4. **Copy downloads** — PDF and HTML5 ZIP are copied to `build/site/downloads/` so they are served as static files on GitHub Pages
+5. **Upload artifacts** — PDF and HTML5 are uploaded as GitHub Actions artifacts (90-day retention) for direct download from the Actions tab
+6. **Deploy to GitHub Pages** — the complete `build/site/` (Antora site + downloads) is published at [https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/](https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/)
+
+### Download from Antora UI
+
+The Antora site includes a **📥 Download** dropdown in the top navigation bar with direct links to:
+- 📄 **PDF** — `https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/downloads/eventbus-logging-filter-jaxrs-docs.pdf`
+- 🗜️ **HTML5 ZIP** — `https://amusarra.github.io/eventbus-logging-filter-jaxrs-docs/downloads/eventbus-logging-filter-jaxrs-docs-html5.zip`
+- ℹ️ **Downloads info page** — `eventbus-logging-filter-jaxrs/1.3.0/downloads.html`

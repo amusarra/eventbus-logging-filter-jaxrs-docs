@@ -13,6 +13,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Security
 
+## [1.3.0] - 2026-04-15
+
+### Added
+- Workflow GitHub Actions unificato `.github/workflows/build_docs.yml` che sostituisce i tre workflow separati (`build_asciidoc_to_pdf.yml`, `build_asciidoc_to_html_github_page.yml`, `build_antora_site.yml`): genera PDF e HTML5 via Maven, produce il sito Antora con `antora-playbook-ci.yml` e pubblica tutto su GitHub Pages in un'unica pipeline
+- `antora-playbook-ci.yml` — Playbook Antora ottimizzato per CI che usa la sorgente locale già checkouttata (`url: .`) garantendo coerenza con l'ultimo commit senza dipendenze di rete
+- `docs/modules/ROOT/pages/downloads.adoc` — Pagina Antora con tabella dei formati disponibili (PDF, HTML5 ZIP), istruzioni per la generazione manuale e informazioni sulla licenza
+- Dropdown **📥 Download** nella navbar Antora (`supplemental-ui/partials/header-content.hbs`) con link diretti a PDF, HTML5 ZIP e pagina info download
+- Voce `📥 Download` nel sidebar di navigazione (`docs/modules/ROOT/nav.adoc`)
+- Attributo `downloads-url` in tutti i playbook Antora e in `docs/antora.yml` per risolvere `{downloads-url}` nelle pagine AsciiDoc
+- Copia automatica del PDF generato in `build/site/downloads/eventbus-logging-filter-jaxrs-docs.pdf` (servito come file statico su GitHub Pages)
+- Creazione automatica dello ZIP HTML5 in `build/site/downloads/eventbus-logging-filter-jaxrs-docs-html5.zip`
+- Upload di PDF e HTML5 come artefatti GitHub Actions con retention 90 giorni (scaricabili dalla scheda Actions)
+
+### Changed
+- `README.md` e `README_it.md` — Aggiornati: badge CI unificato, struttura progetto aggiornata, sezione CI/CD riscritta con descrizione della pipeline unificata e della funzionalità di download dall'UI Antora, configurazione playbook aggiornata a tre playbook
+
+### Removed
+- `.github/workflows/build_asciidoc_to_pdf.yml` — sostituito dal workflow unificato `build_docs.yml`
+- `.github/workflows/build_asciidoc_to_html_github_page.yml` — sostituito dal workflow unificato `build_docs.yml`
+- `.github/workflows/build_antora_site.yml` — sostituito dal workflow unificato `build_docs.yml`
+
 ## [1.2.0] - 2026-04-15
 
 ### Added
