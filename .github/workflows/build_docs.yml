@@ -32,6 +32,13 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+# Forza Node.js 24 per le GitHub Actions (Node.js 20 deprecato da giugno 2026).
+# Rimuovere questa variabile una volta che le action aggiornate (checkout@v5,
+# setup-java@v5, setup-node@v5, upload-artifact@v5, ecc.) saranno disponibili
+# e i riferimenti sopra aggiornati di conseguenza.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
