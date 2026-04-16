@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `supplemental-ui/partials/footer-content.hbs` — Footer personalizzato del sito Antora con copyright © Antonio Musarra's Blog ([dontesta.it](https://www.dontesta.it)), link al profilo GitHub ([amusarra](https://github.com/amusarra)) e profilo LinkedIn ([amusarra](https://www.linkedin.com/in/amusarra))
 
 ### Changed
+- Adeguamento della GitHub Action per il supporto a Node.js 24: aggiornamento del file `build_docs.yml` con `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` a livello di workflow per optare in anticipo su Node.js 24 e prevenire warning di deprecazione
+
 ### Removed
 ### Deprecated
 ### Security
