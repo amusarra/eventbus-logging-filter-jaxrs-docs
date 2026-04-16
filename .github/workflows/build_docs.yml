@@ -87,14 +87,14 @@ jobs:
 
       # ── Artefatti GitHub Actions (scaricabili dalla scheda Actions) ───────
       - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-pdf
           path: 'target/generated-pdf/eventbus-logging-filter-jaxrs-docs-*.pdf'
           retention-days: 90
 
       - name: Upload HTML5 artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-html5
           path: 'target/generated-html5/'
