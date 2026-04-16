@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `supplemental-ui/partials/footer-content.hbs` — Footer personalizzato del sito Antora con copyright © Antonio Musarra's Blog ([dontesta.it](https://www.dontesta.it)), link al profilo GitHub ([amusarra](https://github.com/amusarra)) e profilo LinkedIn ([amusarra](https://www.linkedin.com/in/amusarra))
+
 ### Changed
 ### Removed
 ### Deprecated
