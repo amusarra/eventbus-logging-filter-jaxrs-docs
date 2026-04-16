@@ -105,7 +105,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload Antora site artifact (with downloads)
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: './build/site'
 
